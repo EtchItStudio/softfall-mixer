@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rubber Softfall Colour Mixer — MELOS EPDM</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --panel2:#f0f1f4; --line:#e2e5ea;
+    --text:#1c2027; --muted:#5c6470; --accent:#2f7de1; --warn:#b8791f; --bad:#d23b30; --good:#2f9e5b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.45}
+  header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:650}
+  header .sub{color:var(--muted);font-size:13px}
+  .wrap{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:calc(100vh - 59px)}
+  @media(max-width:880px){.wrap{grid-template-columns:1fr}}
+  .controls{padding:20px;border-right:1px solid var(--line)}
+  .viz{padding:24px;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+  .slot{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+  .slot .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .chip{width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);flex:none}
+  select,input[type=number],input[type=text]{background:var(--panel2);color:var(--text);border:1px solid var(--line);
+    border-radius:7px;padding:7px 8px;font-size:13px}
+  select{flex:1;min-width:0}
+  .pct{display:flex;align-items:center;gap:10px}
+  .pct input[type=range]{flex:1}
+  .pct input[type=number]{width:64px;text-align:right}
+  .pct .unit{color:var(--muted);font-size:13px}
+  .rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px}
+  .rm:hover{color:var(--bad)}
+  .codes{font-size:11px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+  .row-actions{display:flex;gap:10px;margin:6px 0 16px}
+  button.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;
+    padding:8px 12px;font-size:13px;cursor:pointer}
+  button.btn:hover{border-color:var(--accent)}
+  button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  button.btn:disabled{opacity:.4;cursor:not-allowed}
+  .total{display:flex;align-items:center;justify-content:space-between;font-size:13px;
+    padding:10px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);margin-bottom:12px}
+  .total b{font-variant-numeric:tabular-nums}
+  .tag{font-size:11px;padding:2px 7px;border-radius:20px}
+  .tag.ok{background:rgba(70,180,110,.15);color:var(--good)}
+  .tag.no{background:rgba(226,87,76,.15);color:var(--bad)}
+  canvas#swatch{border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 30px rgba(0,0,0,.4);
+    width:480px;max-width:100%;height:auto;background:#0a0b0d}
+  .avg{display:flex;align-items:center;gap:14px}
+  .avg .sw{width:54px;height:54px;border-radius:8px;border:1px solid var(--line)}
+  .avg .lbl{font-size:13px;color:var(--muted)}
+  .avg .lbl b{color:var(--text)}
+  .recipe{font-size:12.5px;color:var(--muted);max-width:480px}
+  .recipe table{border-collapse:collapse;width:100%;margin-top:6px}
+  .recipe td{padding:4px 6px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+  .recipe td .sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(255,255,255,.18)}
+  .note{font-size:12px;color:var(--muted);max-width:480px;background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px}
+  .viz h3{margin:0 0 2px;font-size:14px;font-weight:600}
+  .scale{font-size:11px;color:var(--muted)}
+  label.tiny{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+  .secthead{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:4px 0 10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rubber Softfall Colour Mixer</h1>
+  <span class="sub">MELOS EPDM granule palette · up to 3 colours per batch</span>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="secthead">Project / mix name</div>
+    <input type="text" id="mixName" placeholder="e.g. Playground A — main surface" style="width:100%;margin-bottom:16px">
+    <div class="secthead">Mix recipe</div>
+    <div id="slots"></div>
+    <div class="row-actions">
+      <button class="btn" id="addBtn">+ Add colour</button>
+      <button class="btn" id="evenBtn">Split evenly</button>
+      <button class="btn" id="normBtn">Normalise to 100%</button>
+    </div>
+    <div class="total">
+      <span>Total</span>
+      <span><b id="totalVal">100</b>% <span id="totalTag" class="tag ok">balanced</span></span>
+    </div>
+    <div style="margin-top:14px">
+      <label class="tiny">Granule size (visual scale)</label>
+      <div class="pct">
+        <input type="range" id="grain" min="6" max="20" value="11">
+        <span class="unit" id="grainLbl">1–3 mm</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="viz">
+    <div>
+      <h3>Speckled granule mix <span class="scale">— how it actually looks up close</span></h3>
+    </div>
+    <canvas id="swatch" width="960" height="640"></canvas>
+    <div class="row-actions" style="margin:0">
+      <button class="btn" id="regenBtn">↻ Regenerate scatter</button>
+      <button class="btn primary" id="pngBtn">⤓ Export spec (PNG)</button>
+      <button class="btn primary" id="pdfBtn">⤓ Export spec (PDF)</button>
+    </div>
+
+    <div class="avg">
+      <div class="sw" id="avgSw"></div>
+      <div class="lbl">Optical blend from a distance<br><b id="avgHex">#000000</b> — the colour the eye averages to</div>
+    </div>
+
+    <div class="note">
+      Rubber crumb does not blend like paint. Each granule keeps its own colour, so the surface is always
+      speckled — the flat colour on the right is only what your eye sees from several metres away. Specify by
+      the recipe and codes below, and always confirm against a physical sample from the supplier before pouring.
+    </div>
+
+    <div class="recipe" id="recipe"></div>
+  </div>
+</div>
+
+<script>
+// ---- MELOS EPDM palette (sampled from supplier swatch; MELOS code + RAL retained) ----
+const PALETTE = {
+  "Standard": [
+    ["Beige","#C59362","462100","RAL 1001"],
+    ["Sand Yellow","#BF975E","690600","RAL 1002"],
+    ["Earth Yellow","#BF7D25","465700","RAL 1006"],
+    ["Yellow","#F3C22A","462000","RAL 1012"],
+    ["Pearl","#D6C7AF","462900","RAL 1013"],
+    ["Eggshell","#CCB28E","462400","RAL 1015"],
+    ["Orange","#D25B27","665700","RAL 2011"],
+    ["Red","#A2281B","460000","RAL 3016"],
+    ["Rose","#AD2B34","467500","RAL 3017"],
+    ["Purple","#482D6F","463400","RAL 4005"],
+    ["Hertha Blue","#063A78","469100","RAL 5002"],
+    ["Gentian Blue","#004B78","690700","RAL 5010"],
+    ["Blue Grey","#587187","461000","RAL 5014"],
+    ["Sky Blue","#0078A3","461800","RAL 5015"],
+    ["Rainbow Blue","#006391","465900","RAL 5017"],
+    ["Turquoise Blue","#49999A","465400","RAL 5018"],
+    ["Capri Blue","#0C314D","461500","RAL 5019"],
+    ["Teal","#3190A6","465800","RAL 5024"],
+    ["Patina Green","#217955","464000","RAL 6000"],
+    ["Reseda Green","#59794A","464700","RAL 6011"],
+    ["May Green","#578843","464100","RAL 6017"],
+    ["Rainbow Green","#2A5E31","465600","RAL 6025"],
+    ["Signal Green","#0E442C","464600","RAL 6032"],
+    ["Iron Grey","#4B5152","690800","RAL 7011"],
+    ["Slate Grey","#272A33","463100","RAL 7015"],
+    ["Light Grey","#8E8B87","463800","RAL 7035"],
+    ["Brown","#7F593B","462800","RAL 8024"],
+    ["Black","#1A1B1D","463900","RAL 9004"]
+  ],
+  "Special": [
+    ["Gold","#A6792F","676100","RAL 1004"],
+    ["Clay Brown","#705232","669000","RAL 1011"],
+    ["Melon Yellow","#995B25","675200","RAL 1028"],
+    ["Brilliant Red","#BE2A2B","680500","RAL 3000"],
+    ["Wine Red","#58232F","461600","RAL 3004"],
+    ["Dark Red","#4C2220","675400","RAL 3009"],
+    ["Tomato Red","#C02827","460700","RAL 3013"],
+    ["Heather Violet","#91475C","661600","RAL 4003"],
+    ["Blackberry","#757389","667700","RAL 4012"],
+    ["Blueberry","#303959","669300","RAL 5000"],
+    ["Dark Blue","#30415F","661000","RAL 5009"],
+    ["Night Purple","#2F2841","680600","RAL 5022"],
+    ["Lime Green","#9FB13E","686700","RAL 6018"],
+    ["Meadow","#737D5A","664200","RAL 6021"],
+    ["Mouse Grey","#535151","667100","RAL 7005"],
+    ["Silver Birch","#7D7B66","663400","RAL 7032"],
+    ["Khaki","#ADA768","462300","RAL 7034"],
+    ["Medium Grey","#5E6163","668100","RAL 7037"],
+    ["Tele Grey","#636362","467300","RAL 7046"],
+    ["Medium Teak","#6E4328","668400","RAL 8001"],
+    ["Sepia Brown","#3A2F26","668000","RAL 8014"],
+    ["Chocolate Brown","#4C3025","661200","RAL 8017"],
+    ["Traffic White","#D8D2C2","666500","RAL 9016"]
+  ]
+};
+const ALL = {};
+Object.values(PALETTE).flat().forEach(c=>ALL[c[0]]=c);
+
+// ---- State ----
+let slots = [
+  {name:"Black", pct:50},
+  {name:"Traffic White", pct:50}
+];
+let seed = 12345;
+
+const $ = s=>document.querySelector(s);
+const slotsEl=$("#slots");
+
+function hexToRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgbToHex(r,g,b){return "#"+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,"0")).join("").toUpperCase();}
+
+function optionHtml(sel){
+  let h="";
+  for(const [grp,arr] of Object.entries(PALETTE)){
+    h+=`<optgroup label="${grp}">`;
+    for(const c of arr){h+=`<option value="${c[0]}" ${c[0]===sel?"selected":""}>${c[0]}</option>`;}
+    h+="</optgroup>";
+  }
+  return h;
+}
+
+function renderSlots(){
+  slotsEl.innerHTML="";
+  slots.forEach((s,i)=>{
+    const c=ALL[s.name];
+    const div=document.createElement("div");
+    div.className="slot";
+    div.innerHTML=`
+      <div class="top">
+        <div class="chip" style="background:${c[1]}"></div>
+        <select data-i="${i}" class="csel">${optionHtml(s.name)}</select>
+        ${slots.length>1?`<button class="rm" data-rm="${i}" title="Remove">×</button>`:""}
+      </div>
+      <div class="pct">
+        <input type="range" min="0" max="100" value="${s.pct}" data-i="${i}" class="cslide">
+        <input type="number" min="0" max="100" value="${s.pct}" data-i="${i}" class="cnum">
+        <span class="unit">%</span>
+      </div>
+      <div class="codes">MELOS ${c[2]} · ${c[3]}</div>`;
+    slotsEl.appendChild(div);
+  });
+  $("#addBtn").disabled = slots.length>=3;
+  bind();
+  draw();
+}
+
+function bind(){
+  document.querySelectorAll(".csel").forEach(el=>el.onchange=e=>{slots[+e.target.dataset.i].name=e.target.value;renderSlots();});
+  document.querySelectorAll(".cslide").forEach(el=>el.oninput=e=>{const i=+e.target.dataset.i;slots[i].pct=+e.target.value;syncNums();draw();});
+  document.querySelectorAll(".cnum").forEach(el=>el.onchange=e=>{const i=+e.target.dataset.i;slots[i].pct=Math.max(0,Math.min(100,+e.target.value||0));renderSlots();});
+  document.querySelectorAll("[data-rm]").forEach(el=>el.onclick=e=>{slots.splice(+e.target.dataset.rm,1);renderSlots();});
+}
+function syncNums(){document.querySelectorAll(".cnum").forEach(el=>el.value=slots[+el.dataset.i].pct);updateTotal();}
+
+$("#addBtn").onclick=()=>{if(slots.length<3){const used=slots.map(s=>s.name);const pick=Object.keys(ALL).find(n=>!used.includes(n));slots.push({name:pick,pct:0});renderSlots();}};
+$("#evenBtn").onclick=()=>{const v=Math.round(100/slots.length);slots.forEach((s,i)=>s.pct=i===slots.length-1?100-v*(slots.length-1):v);renderSlots();};
+$("#normBtn").onclick=()=>{const t=slots.reduce((a,s)=>a+s.pct,0)||1;let acc=0;slots.forEach((s,i)=>{if(i<slots.length-1){s.pct=Math.round(s.pct/t*100);acc+=s.pct;}else s.pct=100-acc;});renderSlots();};
+$("#regenBtn").onclick=()=>{seed=Math.floor(Math.random()*1e6);draw();};
+$("#grain").oninput=e=>{const v=+e.target.value;const mm=v<=9?"1–2 mm":v<=14?"1–3 mm":"2–4 mm";$("#grainLbl").textContent=mm;draw();};
+function fileBase(){const n=($("#mixName").value||"softfall-mix").trim();return n.replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-").toLowerCase()||"softfall-mix";}
+function nowStr(){return new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});}
+function mixData(){
+  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
+  const rows=slots.map(s=>{const c=ALL[s.name];return {name:c[0],hex:c[1],melos:c[2],ral:c[3],pct:Math.round(s.pct/t*100)};});
+  let R=0,G=0,B=0;activeColours().forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
+  return {rows,avg:rgbToHex(R,G,B),name:($("#mixName").value||"Untitled mix").trim(),date:nowStr()};
+}
+const DISCLAIMER="Rubber crumb does not blend like paint — each granule keeps its own colour, so the surface is always speckled. The flat 'optical blend' colour is only what the eye averages from a distance. Colours are screen approximations sampled from the MELOS swatch; confirm against a physical supplier sample before ordering.";
+
+// ---- PNG spec card ----
+$("#pngBtn").onclick=()=>{
+  const d=mixData(), s=2, W=1000;
+  const rowH=34, tableTop=560+90+30, H=tableTop+ (d.rows.length+1)*rowH + 120;
+  const cv=document.createElement("canvas");cv.width=W*s;cv.height=H*s;
+  const x=cv.getContext("2d");x.scale(s,s);
+  x.fillStyle="#ffffff";x.fillRect(0,0,W,H);
+  x.fillStyle="#1c2027";x.font="700 26px -apple-system,Segoe UI,Arial";x.fillText(d.name,40,52);
+  x.fillStyle="#5c6470";x.font="400 14px -apple-system,Segoe UI,Arial";x.fillText("MELOS EPDM granule mix · "+d.date,40,76);
+  // swatch
+  x.drawImage($("#swatch"),40,100,W-80,Math.round((W-80)*640/960));
+  let y=100+Math.round((W-80)*640/960)+40;
+  // optical chip
+  x.fillStyle=d.avg;x.fillRect(40,y,46,46);x.strokeStyle="#cfd4db";x.strokeRect(40,y,46,46);
+  x.fillStyle="#5c6470";x.font="400 13px -apple-system,Segoe UI,Arial";x.fillText("Optical blend from a distance",98,y+18);
+  x.fillStyle="#1c2027";x.font="600 15px -apple-system,Segoe UI,Arial";x.fillText(d.avg,98,y+40);
+  y+=80;
+  // table
+  x.fillStyle="#1c2027";x.font="600 15px -apple-system,Segoe UI,Arial";x.fillText("Batch recipe (proportion by weight)",40,y);y+=26;
+  const cols=[70,330,430,560], head=["Colour","%","MELOS","RAL"];
+  x.font="600 13px -apple-system,Segoe UI,Arial";x.fillStyle="#5c6470";
+  head.forEach((h,i)=>x.fillText(h,cols[i],y));y+=8;
+  x.strokeStyle="#e2e5ea";x.beginPath();x.moveTo(40,y);x.lineTo(W-40,y);x.stroke();y+=24;
+  d.rows.forEach(r=>{
+    x.fillStyle=r.hex;x.fillRect(40,y-13,16,16);x.strokeStyle="#cfd4db";x.strokeRect(40,y-13,16,16);
+    x.fillStyle="#1c2027";x.font="400 14px -apple-system,Segoe UI,Arial";
+    x.fillText(r.name,cols[0],y);x.fillText(r.pct+"%",cols[1],y);x.fillText(r.melos,cols[2],y);x.fillText(r.ral,cols[3],y);
+    y+=rowH;
+  });
+  y+=10;x.fillStyle="#5c6470";x.font="400 12px -apple-system,Segoe UI,Arial";
+  wrapText(x,DISCLAIMER,40,y,W-80,17);
+  const a=document.createElement("a");a.download=fileBase()+".png";a.href=cv.toDataURL("image/png");a.click();
+};
+function wrapText(x,t,px,py,maxW,lh){const words=t.split(" ");let line="",y=py;for(const w of words){const test=line+w+" ";if(x.measureText(test).width>maxW&&line){x.fillText(line,px,y);line=w+" ";y+=lh;}else line=test;}x.fillText(line,px,y);}
+
+// ---- PDF spec card (selectable text + embedded swatch) ----
+$("#pdfBtn").onclick=()=>{
+  const d=mixData();
+  const PW=595,PH=842;
+  const jpeg=dataURLtoBytes($("#swatch").toDataURL("image/jpeg",0.92));
+  const iw=PW-80, ih=Math.round(iw*640/960);
+  let cs="";
+  const esc=s=>s.replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+  const txt=(x,y,sz,f,r,g,b,s)=>{cs+=`BT /${f} ${sz} Tf ${r} ${g} ${b} rg ${x} ${y} Td (${esc(s)}) Tj ET\n`;};
+  const rect=(x,y,w,h,r,g,b)=>{cs+=`${r} ${g} ${b} rg ${x} ${y} ${w} ${h} re f\n`;};
+  let y=PH-50;
+  txt(40,y,20,"F2",.11,.13,.16,d.name);y-=20;
+  txt(40,y,11,"F1",.36,.39,.44,"MELOS EPDM granule mix  -  "+d.date);y-=14;
+  const imgY=y-ih;
+  cs+=`q ${iw} 0 0 ${ih} 40 ${imgY} cm /Im0 Do Q\n`;
+  y=imgY-30;
+  rect(40,y-34,44,44,...hexToRgb(d.avg).map(v=>+(v/255).toFixed(3)));
+  txt(96,y-8,11,"F1",.36,.39,.44,"Optical blend from a distance");
+  txt(96,y-26,13,"F2",.11,.13,.16,d.avg);
+  y-=70;
+  txt(40,y,13,"F2",.11,.13,.16,"Batch recipe (proportion by weight)");y-=22;
+  const cx=[64,300,380,470];
+  ["Colour","%","MELOS","RAL"].forEach((h,i)=>txt(cx[i],y,11,"F2",.36,.39,.44,h));y-=6;
+  cs+=`.18 .2 .24 rg 40 ${y} ${PW-80} .8 re f\n`;y-=20;
+  d.rows.forEach(r=>{
+    rect(40,y-3,14,14,...hexToRgb(r.hex).map(v=>+(v/255).toFixed(3)));
+    txt(cx[0],y,12,"F1",.11,.13,.16,r.name);
+    txt(cx[1],y,12,"F1",.11,.13,.16,r.pct+"%");
+    txt(cx[2],y,12,"F1",.11,.13,.16,r.melos);
+    txt(cx[3],y,12,"F1",.11,.13,.16,r.ral);
+    y-=24;
+  });
+  y-=20;
+  const words=DISCLAIMER.split(" ");let line="";const maxChars=92;
+  const lines=[];words.forEach(w=>{if((line+w).length>maxChars){lines.push(line);line=w+" ";}else line+=w+" ";});lines.push(line);
+  lines.forEach(L=>{txt(40,y,9,"F1",.36,.39,.44,L.trim());y-=12;});
+
+  const out=[];const push=s=>{for(let i=0;i<s.length;i++)out.push(s.charCodeAt(i)&0xff);};
+  const off=[];
+  push("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n");
+  const writeObj=(n,body)=>{off[n]=out.length;push(`${n} 0 obj\n`);push(body);push("\nendobj\n");};
+  writeObj(1,"<< /Type /Catalog /Pages 2 0 R >>");
+  writeObj(2,"<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+  writeObj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> /XObject << /Im0 7 0 R >> >> /Contents 4 0 R >>`);
+  off[4]=out.length;push(`4 0 obj\n<< /Length ${cs.length} >>\nstream\n`);push(cs);push("\nendstream\nendobj\n");
+  writeObj(5,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  writeObj(6,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  off[7]=out.length;push(`7 0 obj\n<< /Type /XObject /Subtype /Image /Width 960 /Height 640 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+  for(let i=0;i<jpeg.length;i++)out.push(jpeg[i]);push("\nendstream\nendobj\n");
+  const xref=out.length;
+  push("xref\n0 8\n0000000000 65535 f \n");
+  for(let n=1;n<=7;n++)push(String(off[n]).padStart(10,"0")+" 00000 n \n");
+  push(`trailer\n<< /Size 8 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  const blob=new Blob([new Uint8Array(out)],{type:"application/pdf"});
+  const a=document.createElement("a");a.download=fileBase()+".pdf";a.href=URL.createObjectURL(blob);a.click();
+};
+function dataURLtoBytes(durl){const b=atob(durl.split(",")[1]);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+
+function updateTotal(){
+  const t=slots.reduce((a,s)=>a+s.pct,0);
+  $("#totalVal").textContent=t;
+  const tag=$("#totalTag");
+  if(t===100){tag.className="tag ok";tag.textContent="balanced";}
+  else{tag.className="tag no";tag.textContent=(t>100?"+":"")+(t-100)+"% off";}
+}
+
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+function activeColours(){
+  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
+  return slots.filter(s=>s.pct>0).map(s=>({c:ALL[s.name],w:s.pct/t}));
+}
+
+function draw(){
+  updateTotal();
+  const cv=$("#swatch"),ctx=cv.getContext("2d");
+  const W=cv.width,H=cv.height;
+  const cols=activeColours();
+  ctx.fillStyle="#0a0b0d";ctx.fillRect(0,0,W,H);
+  if(!cols.length){drawAvg([20,20,22]);return;}
+  let cum=[],a=0;cols.forEach(o=>{a+=o.w;cum.push(a);});
+  const rnd=mulberry(seed);
+  const grain=+$("#grain").value;
+  const N=Math.round((W*H)/(grain*grain*1.6));
+  for(let k=0;k<N;k++){
+    const x=rnd()*W,y=rnd()*H;
+    const r=grain*(0.6+rnd()*0.9);
+    const p=rnd();let ci=0;while(ci<cum.length-1&&p>cum[ci])ci++;
+    const base=hexToRgb(cols[ci].c[1]);
+    const j=(rnd()-0.5)*38;
+    const col=base.map(v=>Math.max(0,Math.min(255,v+j)));
+    drawCrumb(ctx,x,y,r,col,rnd);
+  }
+  const g=ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,H*0.75);
+  g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,0.22)");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  let R=0,G=0,B=0;cols.forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
+  drawAvg([R,G,B]);
+  renderRecipe();
+}
+
+function drawCrumb(ctx,x,y,r,col,rnd){
+  const n=5+Math.floor(rnd()*3);
+  const rot=rnd()*Math.PI*2;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const ang=rot+i/n*Math.PI*2;
+    const rr=r*(0.65+rnd()*0.55);
+    const px=x+Math.cos(ang)*rr,py=y+Math.sin(ang)*rr;
+    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }
+  ctx.closePath();
+  ctx.fillStyle=`rgb(${col[0]|0},${col[1]|0},${col[2]|0})`;
+  ctx.fill();
+  if(rnd()>0.6){
+    ctx.beginPath();
+    ctx.arc(x-r*0.2,y-r*0.2,r*0.18,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.10)";ctx.fill();
+  }
+}
+
+function drawAvg(rgb){
+  const hex=rgbToHex(rgb[0],rgb[1],rgb[2]);
+  $("#avgSw").style.background=hex;
+  $("#avgHex").textContent=hex;
+}
+
+function renderRecipe(){
+  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
+  let rows="";
+  slots.forEach(s=>{const c=ALL[s.name];const pc=Math.round(s.pct/t*100);
+    rows+=`<tr><td><span class="sw" style="background:${c[1]}"></span>${c[0]}</td><td>${pc}%</td><td>${c[2]}</td><td>${c[3]}</td></tr>`;});
+  $("#recipe").innerHTML=`<b>Batch recipe</b> (proportion by weight)
+    <table><tr><td><b>Colour</b></td><td><b>%</b></td><td><b>MELOS</b></td><td><b>RAL</b></td></tr>${rows}</table>`;
+}
+
+renderSlots();
+</script>
+</body>
+</ht

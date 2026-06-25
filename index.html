@@ -364,25 +364,28 @@ function draw(){
   const cv=$("#swatch"),ctx=cv.getContext("2d");
   const W=cv.width,H=cv.height;
   const cols=activeColours();
-  ctx.fillStyle="#0a0b0d";ctx.fillRect(0,0,W,H);
-  if(!cols.length){drawAvg([20,20,22]);return;}
+  if(!cols.length){ctx.fillStyle="#e9e9ea";ctx.fillRect(0,0,W,H);drawAvg([233,233,234]);return;}
   let cum=[],a=0;cols.forEach(o=>{a+=o.w;cum.push(a);});
+  // optical average — used as substrate so any micro-gap reads true, never black
+  let R=0,G=0,B=0;cols.forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
+  ctx.fillStyle=`rgb(${R|0},${G|0},${B|0})`;ctx.fillRect(0,0,W,H);
   const rnd=mulberry(seed);
   const grain=+$("#grain").value;
-  const N=Math.round((W*H)/(grain*grain*1.6));
-  for(let k=0;k<N;k++){
-    const x=rnd()*W,y=rnd()*H;
-    const r=grain*(0.6+rnd()*0.9);
-    const p=rnd();let ci=0;while(ci<cum.length-1&&p>cum[ci])ci++;
-    const base=hexToRgb(cols[ci].c[1]);
-    const j=(rnd()-0.5)*38;
-    const col=base.map(v=>Math.max(0,Math.min(255,v+j)));
-    drawCrumb(ctx,x,y,r,col,rnd);
+  // jittered grid: every cell gets a crumb sized to overlap its neighbours -> full coverage, no gaps
+  const cell=grain*1.15;
+  const ncx=Math.ceil(W/cell)+1, ncy=Math.ceil(H/cell)+1;
+  for(let gy=0;gy<ncy;gy++){
+    for(let gx=0;gx<ncx;gx++){
+      const x=gx*cell+(rnd()-0.5)*cell*0.9;
+      const y=gy*cell+(rnd()-0.5)*cell*0.9;
+      const r=cell*(0.80+rnd()*0.5);
+      const p=rnd();let ci=0;while(ci<cum.length-1&&p>cum[ci])ci++;
+      const base=hexToRgb(cols[ci].c[1]);
+      const j=(rnd()-0.5)*20;
+      const col=base.map(v=>Math.max(0,Math.min(255,v+j)));
+      drawCrumb(ctx,x,y,r,col,rnd);
+    }
   }
-  const g=ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,H*0.75);
-  g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,0.22)");
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  let R=0,G=0,B=0;cols.forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
   drawAvg([R,G,B]);
   renderRecipe();
 }
@@ -400,10 +403,10 @@ function drawCrumb(ctx,x,y,r,col,rnd){
   ctx.closePath();
   ctx.fillStyle=`rgb(${col[0]|0},${col[1]|0},${col[2]|0})`;
   ctx.fill();
-  if(rnd()>0.6){
+  if(rnd()>0.8){
     ctx.beginPath();
-    ctx.arc(x-r*0.2,y-r*0.2,r*0.18,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.10)";ctx.fill();
+    ctx.arc(x-r*0.2,y-r*0.2,r*0.16,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.05)";ctx.fill();
   }
 }
 
@@ -425,4 +428,4 @@ function renderRecipe(){
 renderSlots();
 </script>
 </body>
-</ht
+</html>

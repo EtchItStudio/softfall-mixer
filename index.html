@@ -1,81 +1,196 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rubber Softfall Colour Mixer — MELOS EPDM</title>
+<title>Softfall Colour Mixer — wet-pour EPDM</title>
 <style>
   :root{
-    --bg:#f5f6f8; --panel:#ffffff; --panel2:#f0f1f4; --line:#e2e5ea;
-    --text:#1c2027; --muted:#5c6470; --accent:#2f7de1; --warn:#b8791f; --bad:#d23b30; --good:#2f9e5b;
+    --paper:#eceef1;      /* cool site-paper */
+    --panel:#ffffff;
+    --sunk:#f2f4f7;
+    --line:#d8dce3;
+    --line2:#eaedf1;
+    --ink:#161a1f;
+    --ink2:#5a6472;
+    --ink3:#8791a0;
+    --signal:#e8a300;     /* site-signage yellow — the one accent */
+    --link:#1e5fb4;
+    --bad:#c0392b;
+    --ok:#1f7a4d;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:6px;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.45}
-  header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-  header h1{font-size:18px;margin:0;font-weight:650}
-  header .sub{color:var(--muted);font-size:13px}
-  .wrap{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:calc(100vh - 59px)}
-  @media(max-width:880px){.wrap{grid-template-columns:1fr}}
-  .controls{padding:20px;border-right:1px solid var(--line)}
-  .viz{padding:24px;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
-  .slot{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
-  .slot .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .chip{width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.18);flex:none}
-  select,input[type=number],input[type=text]{background:var(--panel2);color:var(--text);border:1px solid var(--line);
-    border-radius:7px;padding:7px 8px;font-size:13px}
-  select{flex:1;min-width:0}
-  .pct{display:flex;align-items:center;gap:10px}
-  .pct input[type=range]{flex:1}
-  .pct input[type=number]{width:64px;text-align:right}
-  .pct .unit{color:var(--muted);font-size:13px}
-  .rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px}
-  .rm:hover{color:var(--bad)}
-  .codes{font-size:11px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
-  .row-actions{display:flex;gap:10px;margin:6px 0 16px}
-  button.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;
-    padding:8px 12px;font-size:13px;cursor:pointer}
-  button.btn:hover{border-color:var(--accent)}
-  button.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  html,body{margin:0}
+  body{
+    font-family:var(--sans);background:var(--paper);color:var(--ink);
+    line-height:1.5;font-size:14px;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--link)}
+
+  header{
+    padding:14px 22px;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:5;
+  }
+  header .mark{width:22px;height:22px;border-radius:3px;flex:none;
+    background:
+      radial-gradient(circle at 30% 30%, var(--signal) 38%, transparent 39%),
+      radial-gradient(circle at 72% 62%, #1e5fb4 30%, transparent 31%),
+      radial-gradient(circle at 25% 78%, #c0392b 26%, transparent 27%),
+      #2b3038;}
+  header h1{font-size:15px;margin:0;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--ink2);font-size:12.5px}
+  header .spacer{flex:1}
+
+  .wrap{display:grid;grid-template-columns:352px minmax(0,1fr);align-items:start}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr}}
+
+  .controls{padding:18px;border-right:1px solid var(--line);background:var(--panel);min-height:calc(100vh - 51px)}
+  @media(max-width:980px){.controls{border-right:none;border-bottom:1px solid var(--line);min-height:0}}
+  .viz{padding:22px;display:flex;flex-direction:column;gap:18px;align-items:flex-start;max-width:920px}
+
+  .secthead{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);
+    font-weight:700;margin:20px 0 8px;display:flex;align-items:center;gap:8px;
+  }
+  .secthead:first-child{margin-top:0}
+  .secthead::after{content:"";flex:1;height:1px;background:var(--line2)}
+
+  label.tiny{font-size:11.5px;color:var(--ink2);display:block;margin-bottom:4px}
+
+  input[type=text],input[type=number],select{
+    background:var(--sunk);color:var(--ink);border:1px solid var(--line);
+    border-radius:var(--r);padding:7px 8px;font-size:13px;font-family:inherit;
+  }
+  input[type=number]{font-family:var(--mono);text-align:right}
+  select{width:100%;min-width:0}
+  input:focus-visible,select:focus-visible,button:focus-visible{
+    outline:2px solid var(--link);outline-offset:1px;
+  }
+
+  .slot{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px}
+  .slot .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .chip{width:26px;height:26px;border-radius:4px;border:1px solid rgba(0,0,0,.18);flex:none}
+  .pct{display:flex;align-items:center;gap:8px}
+  .pct input[type=range]{flex:1;min-width:0;accent-color:var(--ink)}
+  .pct input[type=number]{width:60px}
+  .pct .unit{color:var(--ink3);font-size:12px}
+  .rm{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:4px}
+  .rm:hover{color:var(--bad);background:#fdecea}
+  .codes{font-size:10.5px;color:var(--ink3);margin-top:7px;font-family:var(--mono)}
+
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+  button.btn{
+    background:var(--sunk);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);
+    padding:7px 11px;font-size:12.5px;cursor:pointer;font-family:inherit;
+  }
+  button.btn:hover{border-color:var(--ink3)}
+  button.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+  button.btn.primary:hover{background:#000}
   button.btn:disabled{opacity:.4;cursor:not-allowed}
-  .total{display:flex;align-items:center;justify-content:space-between;font-size:13px;
-    padding:10px 12px;border-radius:8px;background:var(--panel);border:1px solid var(--line);margin-bottom:12px}
-  .total b{font-variant-numeric:tabular-nums}
-  .tag{font-size:11px;padding:2px 7px;border-radius:20px}
-  .tag.ok{background:rgba(70,180,110,.15);color:var(--good)}
-  .tag.no{background:rgba(226,87,76,.15);color:var(--bad)}
-  canvas#swatch{border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 30px rgba(0,0,0,.4);
-    width:480px;max-width:100%;height:auto;background:#0a0b0d}
-  .avg{display:flex;align-items:center;gap:14px}
-  .avg .sw{width:54px;height:54px;border-radius:8px;border:1px solid var(--line)}
-  .avg .lbl{font-size:13px;color:var(--muted)}
-  .avg .lbl b{color:var(--text)}
-  .recipe{font-size:12.5px;color:var(--muted);max-width:480px}
-  .recipe table{border-collapse:collapse;width:100%;margin-top:6px}
-  .recipe td{padding:4px 6px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
-  .recipe td .sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px;border:1px solid rgba(255,255,255,.18)}
-  .note{font-size:12px;color:var(--muted);max-width:480px;background:var(--panel);border:1px solid var(--line);
-    border-left:3px solid var(--warn);border-radius:6px;padding:10px 12px}
-  .viz h3{margin:0 0 2px;font-size:14px;font-weight:600}
-  .scale{font-size:11px;color:var(--muted)}
-  label.tiny{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
-  .secthead{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:4px 0 10px}
+
+  .total{
+    display:flex;align-items:center;justify-content:space-between;font-size:12.5px;
+    padding:8px 10px;border-radius:var(--r);background:var(--sunk);border:1px solid var(--line);
+  }
+  .total b{font-family:var(--mono)}
+  .tag{font-size:10.5px;padding:2px 7px;border-radius:20px;font-weight:600}
+  .tag.ok{background:#e4f2ea;color:var(--ok)}
+  .tag.no{background:#fdecea;color:var(--bad)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+  /* ---- viz ---- */
+  .vhead{width:100%}
+  .vhead h2{margin:0 0 2px;font-size:14px;font-weight:650}
+  .vhead p{margin:0;font-size:12px;color:var(--ink2)}
+
+  .canvas-wrap{position:relative;width:100%;max-width:720px}
+  canvas#swatch{
+    display:block;width:100%;height:auto;border-radius:var(--r);
+    border:1px solid var(--line);box-shadow:0 1px 2px rgba(20,25,35,.10),0 8px 24px rgba(20,25,35,.08);
+    background:#ddd;
+  }
+  .fov{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;color:var(--ink3);font-family:var(--mono);margin-top:6px;
+  }
+
+  .readout{
+    display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;
+    width:100%;max-width:720px;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--r);padding:14px;
+  }
+  .readout .sw{width:64px;height:64px;border-radius:4px;border:1px solid rgba(0,0,0,.18);flex:none}
+  .readout .lbl{font-size:12px;color:var(--ink2)}
+  .readout .hex{font-family:var(--mono);font-size:16px;color:var(--ink);font-weight:600;letter-spacing:-.01em}
+
+  .lrv{margin-top:8px}
+  .lrv .bar{height:8px;border-radius:4px;background:linear-gradient(90deg,#1b1d20,#8b8f96,#e9ebee);position:relative;border:1px solid var(--line)}
+  .lrv .pin{position:absolute;top:-4px;width:2px;height:14px;background:var(--ink);box-shadow:0 0 0 2px #fff}
+  .lrv .scale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);font-family:var(--mono);margin-top:3px}
+  .heat{margin-top:8px;font-size:12px;padding:8px 10px;border-radius:var(--r);border-left:3px solid var(--signal);background:#fff9e9;color:#6b5200}
+  .heat.hot{border-left-color:var(--bad);background:#fdecea;color:#8a2c22}
+  .heat.cool{border-left-color:var(--ok);background:#e9f4ee;color:#155c3a}
+
+  table.data{border-collapse:collapse;width:100%;max-width:720px;background:var(--panel);
+    border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:12.5px}
+  table.data caption{caption-side:top;text-align:left;font-weight:650;font-size:13px;padding:0 0 6px}
+  table.data th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--ink3);padding:8px 10px;border-bottom:1px solid var(--line);background:var(--sunk);font-weight:700}
+  table.data td{padding:8px 10px;border-bottom:1px solid var(--line2)}
+  table.data tr:last-child td{border-bottom:none}
+  table.data td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+  table.data td .sw{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;
+    margin-right:7px;border:1px solid rgba(0,0,0,.18)}
+  table.data tfoot td{background:var(--sunk);font-weight:650;border-top:1px solid var(--line)}
+
+  .note{
+    font-size:12px;color:var(--ink2);max-width:720px;background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--ink3);border-radius:var(--r);padding:10px 12px;
+  }
+  .note b{color:var(--ink)}
+  .toast{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+    padding:9px 14px;border-radius:20px;font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;
+  }
+  .toast.show{opacity:1}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+
 <header>
-  <h1>Rubber Softfall Colour Mixer</h1>
-  <span class="sub">MELOS EPDM granule palette · up to 3 colours per batch</span>
+  <div class="mark" aria-hidden="true"></div>
+  <div>
+    <h1>Softfall Colour Mixer</h1>
+    <div class="sub">Wet-pour EPDM wear course &middot; up to 4 granule colours</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="linkBtn">Copy shareable link</button>
 </header>
 
 <div class="wrap">
+
+  <!-- ================= CONTROLS ================= -->
   <div class="controls">
-    <div class="secthead">Project / mix name</div>
-    <input type="text" id="mixName" placeholder="e.g. Playground A — main surface" style="width:100%;margin-bottom:16px">
+
+    <div class="secthead">Project</div>
+    <label class="tiny" for="mixName">Mix name</label>
+    <input type="text" id="mixName" placeholder="e.g. Ted Little Reserve — main surface" style="width:100%">
+
+    <label class="tiny" for="supplier" style="margin-top:12px">Supplier / colour range</label>
+    <select id="supplier"></select>
+    <div class="codes" id="supplierNote" style="margin-top:6px"></div>
+    <div class="heat" id="supplierWarn" style="margin-top:8px;display:none"></div>
+
     <div class="secthead">Mix recipe</div>
     <div id="slots"></div>
     <div class="row-actions">
-      <button class="btn" id="addBtn">+ Add colour</button>
+      <button class="btn" id="addBtn">Add colour</button>
       <button class="btn" id="evenBtn">Split evenly</button>
       <button class="btn" id="normBtn">Normalise to 100%</button>
     </div>
@@ -83,348 +198,719 @@
       <span>Total</span>
       <span><b id="totalVal">100</b>% <span id="totalTag" class="tag ok">balanced</span></span>
     </div>
-    <div style="margin-top:14px">
-      <label class="tiny">Granule size (visual scale)</label>
-      <div class="pct">
-        <input type="range" id="grain" min="6" max="20" value="11">
-        <span class="unit" id="grainLbl">1–3 mm</span>
-      </div>
+
+    <div class="secthead">View</div>
+    <label class="tiny" for="fov">Field of view</label>
+    <select id="fov">
+      <option value="150">150 mm — up close</option>
+      <option value="400" selected>400 mm — arm's length</option>
+      <option value="1000">1000 mm — standing over it</option>
+      <option value="2500">2500 mm — across the space</option>
+    </select>
+    <div class="note" style="margin-top:12px;font-size:11.5px">
+      Zoom out to see the mix the way a parent sees it from the path. Zoom in to see the way a
+      child sees it from the ground. The colour changes between the two — that is the whole point.
     </div>
+
   </div>
 
+  <!-- ================= VISUALISATION ================= -->
   <div class="viz">
-    <div>
-      <h3>Speckled granule mix <span class="scale">— how it actually looks up close</span></h3>
-    </div>
-    <canvas id="swatch" width="960" height="640"></canvas>
-    <div class="row-actions" style="margin:0">
-      <button class="btn" id="regenBtn">↻ Regenerate scatter</button>
-      <button class="btn primary" id="pngBtn">⤓ Export spec (PNG)</button>
-      <button class="btn primary" id="pdfBtn">⤓ Export spec (PDF)</button>
+
+    <div class="vhead">
+      <h2>Granule field</h2>
+      <p>Rubber crumb never blends like paint. Each granule keeps its own colour — this is the surface at real scale.</p>
     </div>
 
-    <div class="avg">
-      <div class="sw" id="avgSw"></div>
-      <div class="lbl">Optical blend from a distance<br><b id="avgHex">#000000</b> — the colour the eye averages to</div>
+    <div class="canvas-wrap">
+      <canvas id="swatch" width="1080" height="720" role="img"
+              aria-label="Simulated speckled rubber granule surface for the current mix"></canvas>
+      <div class="fov">
+        <span id="fovLbl">400 mm wide</span>
+        <span id="grainLbl">1–3 mm granule</span>
+      </div>
     </div>
+
+    <div class="row-actions" style="margin:0">
+      <button class="btn" id="regenBtn">Regenerate scatter</button>
+      <button class="btn primary" id="pngBtn">Export spec (PNG)</button>
+      <button class="btn primary" id="pdfBtn">Export spec (PDF)</button>
+    </div>
+
+    <div class="readout">
+      <div class="sw" id="avgSw"></div>
+      <div>
+        <div class="lbl">Optical blend seen from a distance</div>
+        <div class="hex" id="avgHex">#000000</div>
+        <div class="lrv">
+          <div class="bar"><div class="pin" id="lrvPin" style="left:0%"></div></div>
+          <div class="scale"><span>LRV 0 — black</span><span id="lrvVal">LRV 0</span><span>LRV 100 — white</span></div>
+        </div>
+        <div class="heat" id="heat"></div>
+      </div>
+    </div>
+
+    <table class="data" id="recipeTbl">
+      <caption>Batch recipe — proportion by weight of granule</caption>
+    </table>
 
     <div class="note">
-      Rubber crumb does not blend like paint. Each granule keeps its own colour, so the surface is always
-      speckled — the flat colour on the right is only what your eye sees from several metres away. Specify by
-      the recipe and codes below, and always confirm against a physical sample from the supplier before pouring.
+      <b>Colour is not a safety control.</b> Critical fall height is set by the depth and composition of the
+      base layer and confirmed by HIC testing to AS/NZS 4422 — not by the colour of the wear course.
+      Screen colours are approximations. Sign off against a physical supplier sample, viewed outdoors, before pouring.
     </div>
 
-    <div class="recipe" id="recipe"></div>
   </div>
 </div>
 
-<script>
-// ---- MELOS EPDM palette (sampled from supplier swatch; MELOS code + RAL retained) ----
-const PALETTE = {
-  "Standard": [
-    ["Beige","#C59362","462100","RAL 1001"],
-    ["Sand Yellow","#BF975E","690600","RAL 1002"],
-    ["Earth Yellow","#BF7D25","465700","RAL 1006"],
-    ["Yellow","#F3C22A","462000","RAL 1012"],
-    ["Pearl","#D6C7AF","462900","RAL 1013"],
-    ["Eggshell","#CCB28E","462400","RAL 1015"],
-    ["Orange","#D25B27","665700","RAL 2011"],
-    ["Red","#A2281B","460000","RAL 3016"],
-    ["Rose","#AD2B34","467500","RAL 3017"],
-    ["Purple","#482D6F","463400","RAL 4005"],
-    ["Hertha Blue","#063A78","469100","RAL 5002"],
-    ["Gentian Blue","#004B78","690700","RAL 5010"],
-    ["Blue Grey","#587187","461000","RAL 5014"],
-    ["Sky Blue","#0078A3","461800","RAL 5015"],
-    ["Rainbow Blue","#006391","465900","RAL 5017"],
-    ["Turquoise Blue","#49999A","465400","RAL 5018"],
-    ["Capri Blue","#0C314D","461500","RAL 5019"],
-    ["Teal","#3190A6","465800","RAL 5024"],
-    ["Patina Green","#217955","464000","RAL 6000"],
-    ["Reseda Green","#59794A","464700","RAL 6011"],
-    ["May Green","#578843","464100","RAL 6017"],
-    ["Rainbow Green","#2A5E31","465600","RAL 6025"],
-    ["Signal Green","#0E442C","464600","RAL 6032"],
-    ["Iron Grey","#4B5152","690800","RAL 7011"],
-    ["Slate Grey","#272A33","463100","RAL 7015"],
-    ["Light Grey","#8E8B87","463800","RAL 7035"],
-    ["Brown","#7F593B","462800","RAL 8024"],
-    ["Black","#1A1B1D","463900","RAL 9004"]
-  ],
-  "Special": [
-    ["Gold","#A6792F","676100","RAL 1004"],
-    ["Clay Brown","#705232","669000","RAL 1011"],
-    ["Melon Yellow","#995B25","675200","RAL 1028"],
-    ["Brilliant Red","#BE2A2B","680500","RAL 3000"],
-    ["Wine Red","#58232F","461600","RAL 3004"],
-    ["Dark Red","#4C2220","675400","RAL 3009"],
-    ["Tomato Red","#C02827","460700","RAL 3013"],
-    ["Heather Violet","#91475C","661600","RAL 4003"],
-    ["Blackberry","#757389","667700","RAL 4012"],
-    ["Blueberry","#303959","669300","RAL 5000"],
-    ["Dark Blue","#30415F","661000","RAL 5009"],
-    ["Night Purple","#2F2841","680600","RAL 5022"],
-    ["Lime Green","#9FB13E","686700","RAL 6018"],
-    ["Meadow","#737D5A","664200","RAL 6021"],
-    ["Mouse Grey","#535151","667100","RAL 7005"],
-    ["Silver Birch","#7D7B66","663400","RAL 7032"],
-    ["Khaki","#ADA768","462300","RAL 7034"],
-    ["Medium Grey","#5E6163","668100","RAL 7037"],
-    ["Tele Grey","#636362","467300","RAL 7046"],
-    ["Medium Teak","#6E4328","668400","RAL 8001"],
-    ["Sepia Brown","#3A2F26","668000","RAL 8014"],
-    ["Chocolate Brown","#4C3025","661200","RAL 8017"],
-    ["Traffic White","#D8D2C2","666500","RAL 9016"]
-  ]
-};
-const ALL = {};
-Object.values(PALETTE).flat().forEach(c=>ALL[c[0]]=c);
+<div class="toast" id="toast"></div>
 
-// ---- State ----
-let slots = [
-  {name:"Black", pct:50},
-  {name:"Traffic White", pct:50}
-];
-let seed = 12345;
+<script>
+/* =====================================================================
+   Softfall Colour Mixer
+   Single file, no dependencies. Drop into a GitHub Pages repo as index.html.
+   ===================================================================== */
+
+/* =====================================================================
+   SUPPLIER REGISTRY
+   ---------------------------------------------------------------------
+   To add a supplier, append one entry below. Nothing else needs to change.
+
+     "Rosehill": {
+       label: "Rosehill TPV",              // shown in the dropdown
+       note:  "TPV granule - Rosehill",    // shown under the dropdown
+       codeLabel: "Rosehill",              // column header for the code
+       groups: {
+         "Standard": [ [name, hex, code, ral], ... ]
+       }
+     }
+
+   Hexes are screen approximations sampled from the supplier swatch and are
+   never a substitute for a physical sample.
+===================================================================== */
+const SUPPLIERS = {
+  "MELOS": {
+    label: "MELOS EPDM",
+    note: "EPDM granule · MELOS colour range",
+    codeLabel: "MELOS",
+    groups: {
+      "Standard": [
+        ["Beige","#C59362","462100","RAL 1001"],
+        ["Sand Yellow","#BF975E","690600","RAL 1002"],
+        ["Earth Yellow","#BF7D25","465700","RAL 1006"],
+        ["Yellow","#F3C22A","462000","RAL 1012"],
+        ["Pearl","#D6C7AF","462900","RAL 1013"],
+        ["Eggshell","#CCB28E","462400","RAL 1015"],
+        ["Orange","#D25B27","665700","RAL 2011"],
+        ["Red","#A2281B","460000","RAL 3016"],
+        ["Rose","#AD2B34","467500","RAL 3017"],
+        ["Purple","#482D6F","463400","RAL 4005"],
+        ["Hertha Blue","#063A78","469100","RAL 5002"],
+        ["Gentian Blue","#004B78","690700","RAL 5010"],
+        ["Blue Grey","#587187","461000","RAL 5014"],
+        ["Sky Blue","#0078A3","461800","RAL 5015"],
+        ["Rainbow Blue","#006391","465900","RAL 5017"],
+        ["Turquoise Blue","#49999A","465400","RAL 5018"],
+        ["Capri Blue","#0C314D","461500","RAL 5019"],
+        ["Teal","#3190A6","465800","RAL 5024"],
+        ["Patina Green","#217955","464000","RAL 6000"],
+        ["Reseda Green","#59794A","464700","RAL 6011"],
+        ["May Green","#578843","464100","RAL 6017"],
+        ["Rainbow Green","#2A5E31","465600","RAL 6025"],
+        ["Signal Green","#0E442C","464600","RAL 6032"],
+        ["Iron Grey","#4B5152","690800","RAL 7011"],
+        ["Slate Grey","#272A33","463100","RAL 7015"],
+        ["Light Grey","#8E8B87","463800","RAL 7035"],
+        ["Brown","#7F593B","462800","RAL 8024"],
+        ["Black","#1A1B1D","463900","RAL 9004"]
+      ],
+      "Special": [
+        ["Gold","#A6792F","676100","RAL 1004"],
+        ["Clay Brown","#705232","669000","RAL 1011"],
+        ["Melon Yellow","#995B25","675200","RAL 1028"],
+        ["Brilliant Red","#BE2A2B","680500","RAL 3000"],
+        ["Wine Red","#58232F","461600","RAL 3004"],
+        ["Dark Red","#4C2220","675400","RAL 3009"],
+        ["Tomato Red","#C02827","460700","RAL 3013"],
+        ["Heather Violet","#91475C","661600","RAL 4003"],
+        ["Blackberry","#757389","667700","RAL 4012"],
+        ["Blueberry","#303959","669300","RAL 5000"],
+        ["Dark Blue","#30415F","661000","RAL 5009"],
+        ["Night Purple","#2F2841","680600","RAL 5022"],
+        ["Lime Green","#9FB13E","686700","RAL 6018"],
+        ["Meadow","#737D5A","664200","RAL 6021"],
+        ["Mouse Grey","#535151","667100","RAL 7005"],
+        ["Silver Birch","#7D7B66","663400","RAL 7032"],
+        ["Khaki","#ADA768","462300","RAL 7034"],
+        ["Medium Grey","#5E6163","668100","RAL 7037"],
+        ["Tele Grey","#636362","467300","RAL 7046"],
+        ["Medium Teak","#6E4328","668400","RAL 8001"],
+        ["Sepia Brown","#3A2F26","668000","RAL 8014"],
+        ["Chocolate Brown","#4C3025","661200","RAL 8017"],
+        ["Traffic White","#D8D2C2","666500","RAL 9016"]
+      ]
+    }
+  }
+  ,
+  "GEZOLAN": {
+    label: "Gezolan EPDM (Australian Surfacing Supplies)",
+    note: "EPDM granule · Gezolan range · dist. Australian Surfacing Supplies",
+    codeLabel: "Gezolan",
+    warning: "Aromatic binder causes a temporary yellow colour shift, strongest on light and bright colours, lasting roughly 2–5 months. Specify a UV-stable aliphatic binder (extra cost) where colour accuracy matters.",
+    groups: {
+      "EPDM Range": [
+        ["White","#D9C9BB","060","RAL 9010"],
+        ["Eggshell","#C3A58C","056","RAL 1015 (Ivory)"],
+        ["Beige","#A97E5A","066","RAL 1014 (Wheat)"],
+        ["Yellow","#A86B2C","069","RAL 1002 (Desert Sand)"],
+        ["Bright Yellow","#C48D1C","089","RAL 1012 (Sunraysia)"],
+        ["Bright Green","#49843B","087","RAL 6017 (Apple)"],
+        ["Green","#5B6946","067","RAL 6021 (Sage)"],
+        ["Dark Green","#122D26","047","RAL 6005 (Forest)"],
+        ["Turquoise Blue","#15808E","134","RAL 5018"],
+        ["Bright Blue","#247DAC","084","RAL 5012 (Arctic)"],
+        ["Blue","#0F619E","064","RAL 5015 (Ocean)"],
+        ["Dark Blue","#16397B","054","RAL 5010 (Navy Sea)"],
+        ["Capri Blue","#0B5E9B","024","RAL 5019"],
+        ["Lilac","#724B91","044","RAL 4005 (Lavender)"],
+        ["Bright Orange","#D75719","083","RAL 2008 (Uluru)"],
+        ["Bright Red","#BC3D31","082","RAL 3017"],
+        ["Red","#75251D","062","RAL 3016 (Rust)"],
+        ["Pink","#9F3967","052","RAL 4003"],
+        ["Beige Brown","#6D4028","076","RAL 8024 (Mocha)"],
+        ["Brown","#4C2822","046","RAL 8025 (Chocolate)"],
+        ["Grey","#989293","065","RAL 7038 (Ash)"],
+        ["Middle Grey","#534A48","055","RAL 7037 (Thunder)"],
+        ["Dark Grey","#251D21","045","RAL 7011"]
+      ]
+    }
+  }
+};
+
+let supplierKey = "MELOS";
+const SUP = () => SUPPLIERS[supplierKey];
+
+/* Flat lookup for the active supplier — rebuilt on every supplier change. */
+let ALL = {}, NAMES = [];
+function indexSupplier(){
+  ALL = {}; NAMES = [];
+  Object.values(SUP().groups).flat().forEach(c=>{ ALL[c[0]] = c; NAMES.push(c[0]); });
+}
+
+const MAX_SLOTS = 4;
+
+/* Granule grade is set by the supplier, not the designer. Standard EPDM wear-course
+   crumb is 1-3 mm. Change here if a project specifies a different grade. */
+const GRAIN = [1,3];
+const GRAIN_LABEL = "1–3 mm granule (standard)";
+
+/* ---- State ---- */
+let slots = [{name:"Sky Blue",pct:60},{name:"Traffic White",pct:40}];
+let seed  = 12345;
 
 const $ = s=>document.querySelector(s);
-const slotsEl=$("#slots");
+const slotsEl = $("#slots");
 
-function hexToRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
-function rgbToHex(r,g,b){return "#"+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,"0")).join("").toUpperCase();}
+/* ---- Colour maths -----------------------------------------------------
+   The original averaged colours in gamma-encoded sRGB. That is wrong:
+   the eye spatially averages LIGHT, which is linear. 50/50 black+white
+   granules read near sRGB #BC, not #7F. All averaging below is done in
+   linear light and converted back.
+--------------------------------------------------------------------- */
+const hexToRgb = h => [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const rgbToHex = (r,g,b) => "#"+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("").toUpperCase();
+const srgbToLin = c => {c/=255; return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4);};
+const linToSrgb = c => 255*(c<=0.0031308 ? c*12.92 : 1.055*Math.pow(c,1/2.4)-0.055);
 
-function optionHtml(sel){
+function opticalBlend(cols){                    // cols: [{hex,w}]
+  let L=[0,0,0];
+  cols.forEach(o=>{const rgb=hexToRgb(o.hex);for(let i=0;i<3;i++)L[i]+=srgbToLin(rgb[i])*o.w;});
+  const Y = 0.2126*L[0] + 0.7152*L[1] + 0.0722*L[2];   // relative luminance
+  return {hex:rgbToHex(...L.map(linToSrgb)), lrv:Math.round(Y*1000)/10};
+}
+
+/* CIE Lab — used to find the nearest colour when switching supplier.
+   Straight RGB distance would happily match a dark navy to a dark brown. */
+function hexToLab(hex){
+  const [r,g,b] = hexToRgb(hex).map(srgbToLin);
+  let X = (r*0.4124 + g*0.3576 + b*0.1805) / 0.95047;
+  let Y = (r*0.2126 + g*0.7152 + b*0.0722) / 1.00000;
+  let Z = (r*0.0193 + g*0.1192 + b*0.9505) / 1.08883;
+  const f = t => t > 0.008856 ? Math.cbrt(t) : (7.787*t + 16/116);
+  [X,Y,Z] = [f(X),f(Y),f(Z)];
+  return [116*Y - 16, 500*(X-Y), 200*(Y-Z)];
+}
+function nearestColour(hex, supKey){
+  const target = hexToLab(hex);
+  let best = null, bestD = Infinity;
+  Object.values(SUPPLIERS[supKey].groups).flat().forEach(c=>{
+    const L = hexToLab(c[1]);
+    const d = Math.hypot(L[0]-target[0], L[1]-target[1], L[2]-target[2]);
+    if(d < bestD){ bestD = d; best = c; }
+  });
+  return {colour:best, dist:bestD};
+}
+
+/* Largest-remainder rounding so the printed recipe always sums to 100. */
+function roundTo100(vals){
+  const total = vals.reduce((a,b)=>a+b,0) || 1;
+  const raw   = vals.map(v=>v/total*100);
+  const floor = raw.map(Math.floor);
+  let rem = 100 - floor.reduce((a,b)=>a+b,0);
+  const order = raw.map((v,i)=>[v-floor[i],i]).sort((a,b)=>b[0]-a[0]);
+  for(let k=0;k<rem;k++) floor[order[k % order.length][1]]++;
+  return floor;
+}
+
+/* ---- Deterministic PRNG ---- */
+const mulberry = a => () => {a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+
+/* ---- Derived mix data ---- */
+function activeSlots(){ return slots.filter(s=>s.pct>0); }
+function mixData(){
+  const act = activeSlots();
+  const pcts = roundTo100(act.map(s=>s.pct));
+  const rows = act.map((s,i)=>{
+    const c = ALL[s.name];
+    return {name:c[0],hex:c[1],code:c[2],ral:c[3],pct:pcts[i],w:pcts[i]/100};
+  });
+  const blend = rows.length ? opticalBlend(rows) : {hex:"#DDDDDD",lrv:0};
+  return {
+    rows, avg:blend.hex, lrv:blend.lrv,
+    name:($("#mixName").value||"Untitled mix").trim(),
+    date:new Date().toLocaleDateString("en-AU",{year:"numeric",month:"short",day:"numeric"}),
+    grain:GRAIN_LABEL,
+    supplier:SUP().label, codeLabel:SUP().codeLabel, warning:SUP().warning||""
+  };
+}
+
+/* ---- Heat / LRV advisory ---------------------------------------------
+   Bands are a design prompt, not a temperature prediction. Dark unshaded
+   wet-pour routinely runs far above ambient in an Australian summer;
+   shade is the primary control, colour is a secondary one.
+--------------------------------------------------------------------- */
+function heatBand(lrv){
+  if(lrv < 15) return {cls:"hot",  txt:"Very low LRV ("+lrv+"). This surface will absorb heavily in full sun. Unless the area is shaded, expect surface temperatures well above ambient and a real burn-risk complaint. Lighten the mix or commit to shade."};
+  if(lrv < 30) return {cls:"hot",  txt:"Low LRV ("+lrv+"). Significant solar gain in unshaded positions. Acceptable under mature canopy or a shade structure — risky in an open playspace."};
+  if(lrv < 45) return {cls:"",     txt:"Moderate LRV ("+lrv+"). Typical of most playspace mixes. Still pair with shade over high-use equipment and access paths."};
+  return          {cls:"cool", txt:"Higher LRV ("+lrv+"). Lower solar gain, but light surfaces show soiling, mould and wear faster — plan the maintenance regime accordingly."};
+}
+
+/* ---- Slot UI ---- */
+function optionHtml(sel, used){
   let h="";
-  for(const [grp,arr] of Object.entries(PALETTE)){
+  for(const [grp,arr] of Object.entries(SUP().groups)){
     h+=`<optgroup label="${grp}">`;
-    for(const c of arr){h+=`<option value="${c[0]}" ${c[0]===sel?"selected":""}>${c[0]}</option>`;}
+    for(const c of arr){
+      const dis = used.includes(c[0]) && c[0]!==sel ? "disabled" : "";
+      h+=`<option value="${c[0]}" ${c[0]===sel?"selected":""} ${dis}>${c[0]}</option>`;
+    }
     h+="</optgroup>";
   }
   return h;
 }
-
 function renderSlots(){
+  const used = slots.map(s=>s.name);
   slotsEl.innerHTML="";
   slots.forEach((s,i)=>{
-    const c=ALL[s.name];
-    const div=document.createElement("div");
+    const c = ALL[s.name];
+    const div = document.createElement("div");
     div.className="slot";
-    div.innerHTML=`
+    div.innerHTML = `
       <div class="top">
         <div class="chip" style="background:${c[1]}"></div>
-        <select data-i="${i}" class="csel">${optionHtml(s.name)}</select>
-        ${slots.length>1?`<button class="rm" data-rm="${i}" title="Remove">×</button>`:""}
+        <select data-i="${i}" class="csel" aria-label="Colour ${i+1}">${optionHtml(s.name,used)}</select>
+        ${slots.length>1?`<button class="rm" data-rm="${i}" aria-label="Remove ${c[0]}" title="Remove">&times;</button>`:""}
       </div>
       <div class="pct">
-        <input type="range" min="0" max="100" value="${s.pct}" data-i="${i}" class="cslide">
-        <input type="number" min="0" max="100" value="${s.pct}" data-i="${i}" class="cnum">
+        <input type="range" min="0" max="100" value="${s.pct}" data-i="${i}" class="cslide" aria-label="${c[0]} percentage">
+        <input type="number" min="0" max="100" value="${s.pct}" data-i="${i}" class="cnum" aria-label="${c[0]} percentage value">
         <span class="unit">%</span>
       </div>
-      <div class="codes">MELOS ${c[2]} · ${c[3]}</div>`;
+      <div class="codes">${SUP().codeLabel} ${c[2]} &middot; ${c[3]}</div>`;
     slotsEl.appendChild(div);
   });
-  $("#addBtn").disabled = slots.length>=3;
+  $("#addBtn").disabled = slots.length >= MAX_SLOTS;
   bind();
   draw();
 }
-
 function bind(){
   document.querySelectorAll(".csel").forEach(el=>el.onchange=e=>{slots[+e.target.dataset.i].name=e.target.value;renderSlots();});
   document.querySelectorAll(".cslide").forEach(el=>el.oninput=e=>{const i=+e.target.dataset.i;slots[i].pct=+e.target.value;syncNums();draw();});
   document.querySelectorAll(".cnum").forEach(el=>el.onchange=e=>{const i=+e.target.dataset.i;slots[i].pct=Math.max(0,Math.min(100,+e.target.value||0));renderSlots();});
-  document.querySelectorAll("[data-rm]").forEach(el=>el.onclick=e=>{slots.splice(+e.target.dataset.rm,1);renderSlots();});
+  document.querySelectorAll("[data-rm]").forEach(el=>el.onclick=e=>{slots.splice(+e.currentTarget.dataset.rm,1);renderSlots();});
 }
 function syncNums(){document.querySelectorAll(".cnum").forEach(el=>el.value=slots[+el.dataset.i].pct);updateTotal();}
-
-$("#addBtn").onclick=()=>{if(slots.length<3){const used=slots.map(s=>s.name);const pick=Object.keys(ALL).find(n=>!used.includes(n));slots.push({name:pick,pct:0});renderSlots();}};
-$("#evenBtn").onclick=()=>{const v=Math.round(100/slots.length);slots.forEach((s,i)=>s.pct=i===slots.length-1?100-v*(slots.length-1):v);renderSlots();};
-$("#normBtn").onclick=()=>{const t=slots.reduce((a,s)=>a+s.pct,0)||1;let acc=0;slots.forEach((s,i)=>{if(i<slots.length-1){s.pct=Math.round(s.pct/t*100);acc+=s.pct;}else s.pct=100-acc;});renderSlots();};
-$("#regenBtn").onclick=()=>{seed=Math.floor(Math.random()*1e6);draw();};
-$("#grain").oninput=e=>{const v=+e.target.value;const mm=v<=9?"1–2 mm":v<=14?"1–3 mm":"2–4 mm";$("#grainLbl").textContent=mm;draw();};
-function fileBase(){const n=($("#mixName").value||"softfall-mix").trim();return n.replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-").toLowerCase()||"softfall-mix";}
-function nowStr(){return new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});}
-function mixData(){
-  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
-  const rows=slots.map(s=>{const c=ALL[s.name];return {name:c[0],hex:c[1],melos:c[2],ral:c[3],pct:Math.round(s.pct/t*100)};});
-  let R=0,G=0,B=0;activeColours().forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
-  return {rows,avg:rgbToHex(R,G,B),name:($("#mixName").value||"Untitled mix").trim(),date:nowStr()};
+function updateTotal(){
+  const t = slots.reduce((a,s)=>a+s.pct,0);
+  $("#totalVal").textContent = t;
+  const tag = $("#totalTag");
+  if(t===100){tag.className="tag ok";tag.textContent="balanced";}
+  else{tag.className="tag no";tag.textContent=(t>100?"+":"")+(t-100)+"% off";}
 }
-const DISCLAIMER="Rubber crumb does not blend like paint — each granule keeps its own colour, so the surface is always speckled. The flat 'optical blend' colour is only what the eye averages from a distance. Colours are screen approximations sampled from the MELOS swatch; confirm against a physical supplier sample before ordering.";
 
-// ---- PNG spec card ----
-$("#pngBtn").onclick=()=>{
-  const d=mixData(), s=2, W=1000;
-  const rowH=34, tableTop=560+90+30, H=tableTop+ (d.rows.length+1)*rowH + 120;
-  const cv=document.createElement("canvas");cv.width=W*s;cv.height=H*s;
-  const x=cv.getContext("2d");x.scale(s,s);
-  x.fillStyle="#ffffff";x.fillRect(0,0,W,H);
-  x.fillStyle="#1c2027";x.font="700 26px -apple-system,Segoe UI,Arial";x.fillText(d.name,40,52);
-  x.fillStyle="#5c6470";x.font="400 14px -apple-system,Segoe UI,Arial";x.fillText("MELOS EPDM granule mix · "+d.date,40,76);
-  // swatch
-  x.drawImage($("#swatch"),40,100,W-80,Math.round((W-80)*640/960));
-  let y=100+Math.round((W-80)*640/960)+40;
-  // optical chip
-  x.fillStyle=d.avg;x.fillRect(40,y,46,46);x.strokeStyle="#cfd4db";x.strokeRect(40,y,46,46);
-  x.fillStyle="#5c6470";x.font="400 13px -apple-system,Segoe UI,Arial";x.fillText("Optical blend from a distance",98,y+18);
-  x.fillStyle="#1c2027";x.font="600 15px -apple-system,Segoe UI,Arial";x.fillText(d.avg,98,y+40);
-  y+=80;
-  // table
-  x.fillStyle="#1c2027";x.font="600 15px -apple-system,Segoe UI,Arial";x.fillText("Batch recipe (proportion by weight)",40,y);y+=26;
-  const cols=[70,330,430,560], head=["Colour","%","MELOS","RAL"];
-  x.font="600 13px -apple-system,Segoe UI,Arial";x.fillStyle="#5c6470";
-  head.forEach((h,i)=>x.fillText(h,cols[i],y));y+=8;
-  x.strokeStyle="#e2e5ea";x.beginPath();x.moveTo(40,y);x.lineTo(W-40,y);x.stroke();y+=24;
-  d.rows.forEach(r=>{
-    x.fillStyle=r.hex;x.fillRect(40,y-13,16,16);x.strokeStyle="#cfd4db";x.strokeRect(40,y-13,16,16);
-    x.fillStyle="#1c2027";x.font="400 14px -apple-system,Segoe UI,Arial";
-    x.fillText(r.name,cols[0],y);x.fillText(r.pct+"%",cols[1],y);x.fillText(r.melos,cols[2],y);x.fillText(r.ral,cols[3],y);
-    y+=rowH;
+/* ---- Canvas: physically scaled granule field ---- */
+function draw(){
+  updateTotal();
+  const cv = $("#swatch"), ctx = cv.getContext("2d");
+  const W = cv.width, H = cv.height;
+  const d = mixData();
+
+  if(!d.rows.length){
+    ctx.fillStyle="#dddfe3";ctx.fillRect(0,0,W,H);
+    paintReadout(d); renderTables(d); return;
+  }
+
+  const [gMin,gMax] = GRAIN;                                      // mm, fixed by supplier
+  const fovMm = +$("#fov").value;                                  // mm across canvas
+  const pxPerMm = W / fovMm;
+
+  // Substrate = optical blend, so any micro-gap reads true rather than black.
+  ctx.fillStyle = d.avg; ctx.fillRect(0,0,W,H);
+
+  const cum=[]; let a=0; d.rows.forEach(r=>{a+=r.w;cum.push(a);});
+  const rnd = mulberry(seed);
+
+  const meanD = (gMin+gMax)/2 * pxPerMm;   // mean granule diameter, px
+  const cell  = Math.max(2, meanD*0.92);   // slight overlap => full coverage
+  const ncx = Math.ceil(W/cell)+1, ncy = Math.ceil(H/cell)+1;
+
+  for(let gy=0; gy<ncy; gy++){
+    for(let gx=0; gx<ncx; gx++){
+      const x = gx*cell + (rnd()-0.5)*cell*0.9;
+      const y = gy*cell + (rnd()-0.5)*cell*0.9;
+      const dia = (gMin + rnd()*(gMax-gMin)) * pxPerMm;
+      const r = dia/2 * 1.35;              // overdraw to close gaps
+      const p = rnd(); let ci=0; while(ci<cum.length-1 && p>cum[ci]) ci++;
+      const base = hexToRgb(d.rows[ci].hex);
+      const j = (rnd()-0.5)*22;            // per-granule tonal jitter
+      drawCrumb(ctx, x, y, r, base.map(v=>v+j), rnd);
+    }
+  }
+  drawScaleBar(ctx, W, H, pxPerMm);
+  paintReadout(d);
+  renderTables(d);
+}
+function drawCrumb(ctx,x,y,r,col,rnd){
+  const n = 5 + Math.floor(rnd()*3);
+  const rot = rnd()*Math.PI*2;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const ang = rot + i/n*Math.PI*2;
+    const rr = r*(0.62 + rnd()*0.56);
+    const px = x+Math.cos(ang)*rr, py = y+Math.sin(ang)*rr;
+    i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+  }
+  ctx.closePath();
+  ctx.fillStyle = `rgb(${col.map(v=>Math.round(Math.max(0,Math.min(255,v)))).join(",")})`;
+  ctx.fill();
+  if(rnd()>0.82){                                  // sparse specular fleck
+    ctx.beginPath();
+    ctx.arc(x-r*0.2, y-r*0.2, r*0.15, 0, Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.08)"; ctx.fill();
+  }
+}
+function drawScaleBar(ctx,W,H,pxPerMm){
+  const targets=[10,20,50,100,200,500];
+  let mm = targets.find(t=>t*pxPerMm > W*0.12) || 100;
+  const len = mm*pxPerMm, x0 = W-len-28, y0 = H-30;
+  ctx.save();
+  ctx.fillStyle="rgba(255,255,255,.86)";
+  ctx.fillRect(x0-10, y0-22, len+20, 40);
+  ctx.strokeStyle="#161a1f"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0+len,y0);
+  ctx.moveTo(x0,y0-6); ctx.lineTo(x0,y0+6);
+  ctx.moveTo(x0+len,y0-6); ctx.lineTo(x0+len,y0+6);
+  ctx.stroke();
+  ctx.fillStyle="#161a1f";
+  ctx.font="600 15px ui-monospace,Menlo,Consolas,monospace";
+  ctx.textAlign="center";
+  ctx.fillText(mm+" mm", x0+len/2, y0-9);
+  ctx.restore();
+}
+
+/* ---- Readout, tables, spec text ---- */
+function paintReadout(d){
+  $("#avgSw").style.background = d.avg;
+  $("#avgHex").textContent = d.avg + "  ·  LRV " + d.lrv;
+  $("#lrvPin").style.left = Math.max(0,Math.min(100,d.lrv)) + "%";
+  $("#lrvVal").textContent = "LRV " + d.lrv;
+  const h = heatBand(d.lrv);
+  const el = $("#heat"); el.className = "heat " + h.cls; el.textContent = h.txt;
+  $("#fovLbl").textContent = $("#fov").value + " mm wide";
+  $("#grainLbl").textContent = d.grain;
+}
+function renderTables(d){
+  $("#recipeTbl").innerHTML = `
+    <caption>Batch recipe — proportion by weight of granule</caption>
+    <thead><tr><th>Colour</th><th style="text-align:right">Share</th><th>${d.codeLabel} code</th><th>RAL</th></tr></thead>
+    <tbody>${d.rows.map(r=>`
+      <tr>
+        <td><span class="sw" style="background:${r.hex}"></span>${r.name}</td>
+        <td class="num">${r.pct}%</td>
+        <td class="num">${r.code}</td>
+        <td class="num">${r.ral}</td>
+      </tr>`).join("") || `<tr><td colspan="4" style="color:var(--ink3)">Set a percentage above zero to build a mix.</td></tr>`}
+    </tbody>
+    <tfoot><tr><td>Total</td><td class="num">${d.rows.reduce((a,r)=>a+r.pct,0)}%</td><td colspan="2"></td></tr></tfoot>`;
+}
+/* ---- Supplier ---- */
+function renderSupplier(){
+  const sel = $("#supplier");
+  sel.innerHTML = Object.entries(SUPPLIERS)
+    .map(([k,v])=>`<option value="${k}" ${k===supplierKey?"selected":""}>${v.label}</option>`).join("");
+  sel.disabled = Object.keys(SUPPLIERS).length < 2;
+  $("#supplierNote").textContent = SUP().note;
+  const w = $("#supplierWarn");
+  if(SUP().warning){ w.style.display="block"; w.textContent = SUP().warning; }
+  else { w.style.display="none"; }
+}
+$("#supplier").onchange = e=>{
+  const next = e.target.value;
+  // Remap the existing mix into the new range rather than dumping it.
+  let moved = 0;
+  slots = slots.map(s=>{
+    const hex = ALL[s.name][1];
+    const {colour,dist} = nearestColour(hex, next);
+    if(dist > 2) moved++;              // >2 in Lab is a visible shift
+    return {name:colour[0], pct:s.pct};
   });
-  y+=10;x.fillStyle="#5c6470";x.font="400 12px -apple-system,Segoe UI,Arial";
-  wrapText(x,DISCLAIMER,40,y,W-80,17);
-  const a=document.createElement("a");a.download=fileBase()+".png";a.href=cv.toDataURL("image/png");a.click();
+  // Collapse duplicates that the remap may have created.
+  const seen = new Set();
+  slots = slots.filter(s=> !seen.has(s.name) && seen.add(s.name));
+  supplierKey = next;
+  indexSupplier();
+  renderSupplier();
+  renderSlots();
+  if(moved) toast("Mix remapped to the nearest " + SUP().label + " colours — check it against a sample");
 };
-function wrapText(x,t,px,py,maxW,lh){const words=t.split(" ");let line="",y=py;for(const w of words){const test=line+w+" ";if(x.measureText(test).width>maxW&&line){x.fillText(line,px,y);line=w+" ";y+=lh;}else line=test;}x.fillText(line,px,y);}
 
-// ---- PDF spec card (selectable text + embedded swatch) ----
-$("#pdfBtn").onclick=()=>{
-  const d=mixData();
-  const PW=595,PH=842;
-  const jpeg=dataURLtoBytes($("#swatch").toDataURL("image/jpeg",0.92));
-  const iw=PW-80, ih=Math.round(iw*640/960);
-  let cs="";
-  const esc=s=>s.replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
-  const txt=(x,y,sz,f,r,g,b,s)=>{cs+=`BT /${f} ${sz} Tf ${r} ${g} ${b} rg ${x} ${y} Td (${esc(s)}) Tj ET\n`;};
-  const rect=(x,y,w,h,r,g,b)=>{cs+=`${r} ${g} ${b} rg ${x} ${y} ${w} ${h} re f\n`;};
-  let y=PH-50;
-  txt(40,y,20,"F2",.11,.13,.16,d.name);y-=20;
-  txt(40,y,11,"F1",.36,.39,.44,"MELOS EPDM granule mix  -  "+d.date);y-=14;
-  const imgY=y-ih;
-  cs+=`q ${iw} 0 0 ${ih} 40 ${imgY} cm /Im0 Do Q\n`;
-  y=imgY-30;
-  rect(40,y-34,44,44,...hexToRgb(d.avg).map(v=>+(v/255).toFixed(3)));
-  txt(96,y-8,11,"F1",.36,.39,.44,"Optical blend from a distance");
-  txt(96,y-26,13,"F2",.11,.13,.16,d.avg);
-  y-=70;
-  txt(40,y,13,"F2",.11,.13,.16,"Batch recipe (proportion by weight)");y-=22;
-  const cx=[64,300,380,470];
-  ["Colour","%","MELOS","RAL"].forEach((h,i)=>txt(cx[i],y,11,"F2",.36,.39,.44,h));y-=6;
-  cs+=`.18 .2 .24 rg 40 ${y} ${PW-80} .8 re f\n`;y-=20;
-  d.rows.forEach(r=>{
-    rect(40,y-3,14,14,...hexToRgb(r.hex).map(v=>+(v/255).toFixed(3)));
-    txt(cx[0],y,12,"F1",.11,.13,.16,r.name);
-    txt(cx[1],y,12,"F1",.11,.13,.16,r.pct+"%");
-    txt(cx[2],y,12,"F1",.11,.13,.16,r.melos);
-    txt(cx[3],y,12,"F1",.11,.13,.16,r.ral);
-    y-=24;
+/* ---- Buttons ---- */
+$("#addBtn").onclick = ()=>{
+  if(slots.length>=MAX_SLOTS) return;
+  const used = slots.map(s=>s.name);
+  const pick = NAMES.find(n=>!used.includes(n));
+  slots.push({name:pick, pct:0});
+  renderSlots();
+};
+$("#evenBtn").onclick = ()=>{
+  const v = Math.floor(100/slots.length);
+  slots.forEach((s,i)=> s.pct = i===slots.length-1 ? 100-v*(slots.length-1) : v);
+  renderSlots();
+};
+$("#normBtn").onclick = ()=>{
+  const t = slots.reduce((a,s)=>a+s.pct,0);
+  if(!t){ $("#evenBtn").click(); return; }
+  const p = roundTo100(slots.map(s=>s.pct));
+  slots.forEach((s,i)=> s.pct = p[i]);
+  renderSlots();
+};
+$("#regenBtn").onclick = ()=>{ seed = Math.floor(Math.random()*1e6); draw(); };
+["#fov","#mixName"].forEach(id=>{
+  $(id).addEventListener("input", draw);
+});
+$("#linkBtn").onclick = ()=>{
+  const s = btoa(JSON.stringify({ n:$("#mixName").value, p:supplierKey, s:slots, f:$("#fov").value }));
+  const url = location.origin + location.pathname + "#" + s;
+  navigator.clipboard.writeText(url).then(()=>toast("Link copied — the whole mix travels in the URL"));
+};
+function toast(msg){
+  const el=$("#toast"); el.textContent=msg; el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),1800);
+}
+
+/* ---- Load state from URL hash ---- */
+function loadHash(){
+  if(location.hash.length <= 1) return;
+  try{
+    const o = JSON.parse(atob(location.hash.slice(1)));
+    if(o.p && SUPPLIERS[o.p]){ supplierKey = o.p; indexSupplier(); }
+    if(Array.isArray(o.s) && o.s.every(s=>ALL[s.name])) slots = o.s.slice(0,MAX_SLOTS);
+    if(o.n) $("#mixName").value = o.n;
+    if(o.f) $("#fov").value = o.f;
+  }catch(e){ /* bad hash — ignore and start clean */ }
+}
+
+/* =====================================================================
+   EXPORTS
+   ===================================================================== */
+const DISCLAIMER =
+  "Rubber crumb does not blend like paint. Each granule keeps its own colour, so the surface always reads " +
+  "as speckle; the optical blend is only what the eye averages from a distance. Colour references are " +
+  "indicative - equivalent products accepted. Confirm against a physical sample before pouring. Colour does " +
+  "not determine critical fall height.";
+
+/* ---- PNG spec card ---- */
+$("#pngBtn").onclick = ()=>{
+  const d = mixData();
+  const s = 2, W = 1040, rowH = 30;
+  const imgH = Math.round((W-80)*720/1080);
+  const n = Math.max(1, d.rows.length);
+  const tblH = 56 + n*rowH;                       // title + head + rule + rows
+  const H = 92 + imgH + 40 + 70 + tblH + 40 + 110;
+
+  const cv = document.createElement("canvas");
+  cv.width = W*s; cv.height = H*s;
+  const x = cv.getContext("2d"); x.scale(s,s);
+  x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
+
+  x.fillStyle="#161a1f"; x.font="700 26px -apple-system,Segoe UI,Arial";
+  x.fillText(d.name, 40, 48);
+  x.fillStyle="#5a6472"; x.font="400 13px -apple-system,Segoe UI,Arial";
+  x.fillText(d.supplier+" · "+d.grain+" · "+d.date, 40, 70);
+
+  x.drawImage($("#swatch"), 40, 92, W-80, imgH);
+
+  let y = 92 + imgH + 40;
+  x.fillStyle=d.avg; x.fillRect(40,y-16,44,44);
+  x.strokeStyle="#d8dce3"; x.strokeRect(40,y-16,44,44);
+  x.fillStyle="#5a6472"; x.font="400 12px -apple-system,Segoe UI,Arial";
+  x.fillText("Optical blend from a distance", 98, y-2);
+  x.fillStyle="#161a1f"; x.font="600 15px ui-monospace,Menlo,Consolas,monospace";
+  x.fillText(d.avg + "   LRV " + d.lrv, 98, y+20);
+  y += 70;
+
+  y = table(x, y, W, rowH, "Batch recipe — proportion by weight",
+    ["Colour","%",d.codeLabel,"RAL"], [70,340,430,560],
+    d.rows.map(r=>[r.name, r.pct+"%", r.code, r.ral]), d.rows.map(r=>r.hex));
+
+  y += 40;
+
+  x.fillStyle="#5a6472"; x.font="400 11.5px -apple-system,Segoe UI,Arial";
+  const note = d.warning ? DISCLAIMER + "  SUPPLIER NOTE: " + d.warning : DISCLAIMER;
+  wrapText(x, note, 40, y, W-80, 16);
+
+  const a=document.createElement("a");
+  a.download = fileBase()+".png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+  toast("PNG exported");
+};
+function table(x, y, W, rowH, title, head, cols, rows, swatches){
+  x.fillStyle="#161a1f"; x.font="600 14px -apple-system,Segoe UI,Arial";
+  x.fillText(title, 40, y); y += 24;
+  x.font="600 11px -apple-system,Segoe UI,Arial"; x.fillStyle="#8791a0";
+  head.forEach((h,i)=>x.fillText(h.toUpperCase(), cols[i], y)); y += 8;
+  x.strokeStyle="#d8dce3"; x.beginPath(); x.moveTo(40,y); x.lineTo(W-40,y); x.stroke(); y += 22;
+  rows.forEach((r,ri)=>{
+    if(swatches){
+      x.fillStyle=swatches[ri]; x.fillRect(40,y-12,16,16);
+      x.strokeStyle="#cfd4db"; x.strokeRect(40,y-12,16,16);
+    }
+    r.forEach((cell,ci)=>{
+      x.fillStyle="#161a1f";
+      x.font = ci===0 ? "400 13.5px -apple-system,Segoe UI,Arial" : "400 13px ui-monospace,Menlo,Consolas,monospace";
+      x.fillText(String(cell), cols[ci], y);
+    });
+    y += rowH;
   });
-  y-=20;
-  const words=DISCLAIMER.split(" ");let line="";const maxChars=92;
-  const lines=[];words.forEach(w=>{if((line+w).length>maxChars){lines.push(line);line=w+" ";}else line+=w+" ";});lines.push(line);
-  lines.forEach(L=>{txt(40,y,9,"F1",.36,.39,.44,L.trim());y-=12;});
+  return y;
+}
+function wrapText(x,t,px,py,maxW,lh){
+  const words=t.split(" "); let line="", y=py;
+  for(const w of words){
+    const test=line+w+" ";
+    if(x.measureText(test).width>maxW && line){x.fillText(line,px,y);line=w+" ";y+=lh;}
+    else line=test;
+  }
+  x.fillText(line,px,y);
+  return y;
+}
 
-  const out=[];const push=s=>{for(let i=0;i<s.length;i++)out.push(s.charCodeAt(i)&0xff);};
+/* ---- PDF spec card (hand-rolled, no dependency) ----------------------
+   Every string is forced to Latin-1: the previous version pushed
+   charCodeAt()&0xff, so em-dashes and curly quotes were silently
+   corrupting the PDF text stream.
+--------------------------------------------------------------------- */
+const ascii = s => String(s)
+  .replace(/[–—]/g,"-").replace(/[“”]/g,'"').replace(/[‘’]/g,"'")
+  .replace(/·/g,"-").replace(/×/g,"x").replace(/²/g,"2").replace(/…/g,"...")
+  .replace(/[^\x20-\x7E]/g,"");
+
+$("#pdfBtn").onclick = ()=>{
+  const d = mixData();
+  const PW=595, PH=842;
+  const jpeg = dataURLtoBytes($("#swatch").toDataURL("image/jpeg",0.92));
+  const iw = PW-80, ih = Math.round(iw*720/1080);
+  let cs = "";
+  const esc = s => ascii(s).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+  const txt = (x,y,sz,f,r,g,b,s)=>{cs+=`BT /${f} ${sz} Tf ${r} ${g} ${b} rg ${x} ${y} Td (${esc(s)}) Tj ET\n`;};
+  const rect = (x,y,w,h,r,g,b)=>{cs+=`${r} ${g} ${b} rg ${x} ${y} ${w} ${h} re f\n`;};
+  const rgb01 = hex => hexToRgb(hex).map(v=>+(v/255).toFixed(3));
+
+  let y = PH-52;
+  txt(40,y,19,"F2",.09,.10,.12,d.name); y-=17;
+  txt(40,y,10,"F1",.35,.39,.45,d.supplier+" - "+d.grain+" - "+d.date); y-=12;
+
+  const imgY = y-ih;
+  cs += `q ${iw} 0 0 ${ih} 40 ${imgY} cm /Im0 Do Q\n`;
+  y = imgY-28;
+
+  rect(40,y-32,42,42,...rgb01(d.avg));
+  txt(94,y-6,10,"F1",.35,.39,.45,"Optical blend from a distance");
+  txt(94,y-24,12,"F2",.09,.10,.12,d.avg+"   LRV "+d.lrv);
+  y -= 66;
+
+  txt(40,y,12,"F2",.09,.10,.12,"Batch recipe - proportion by weight"); y-=20;
+  const cx=[64,300,370,460];
+  ["Colour","%",d.codeLabel,"RAL"].forEach((h,i)=>txt(cx[i],y,9,"F2",.53,.57,.63,h.toUpperCase())); y-=6;
+  cs += `.85 .86 .89 rg 40 ${y} ${PW-80} .8 re f\n`; y-=18;
+  d.rows.forEach(r=>{
+    rect(40,y-3,13,13,...rgb01(r.hex));
+    txt(cx[0],y,11,"F1",.09,.10,.12,r.name);
+    txt(cx[1],y,11,"F1",.09,.10,.12,r.pct+"%");
+    txt(cx[2],y,11,"F1",.09,.10,.12,r.code);
+    txt(cx[3],y,11,"F1",.09,.10,.12,r.ral);
+    y-=20;
+  });
+  y-=14;
+
+  const wrap = (s,n)=>{const w=s.split(" ");const out=[];let l="";w.forEach(x=>{if((l+x).length>n){out.push(l);l=x+" ";}else l+=x+" ";});out.push(l);return out;};
+  const note = d.warning ? DISCLAIMER + "  SUPPLIER NOTE: " + d.warning : DISCLAIMER;
+  wrap(note,100).forEach(L=>{txt(40,y,8.5,"F1",.35,.39,.45,L.trim()); y-=11;});
+
+  /* --- assemble --- */
+  const out=[]; const push = s=>{for(let i=0;i<s.length;i++) out.push(s.charCodeAt(i)&0xff);};
   const off=[];
   push("%PDF-1.4\n%\xe2\xe3\xcf\xd3\n");
   const writeObj=(n,body)=>{off[n]=out.length;push(`${n} 0 obj\n`);push(body);push("\nendobj\n");};
   writeObj(1,"<< /Type /Catalog /Pages 2 0 R >>");
   writeObj(2,"<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
   writeObj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> /XObject << /Im0 7 0 R >> >> /Contents 4 0 R >>`);
-  off[4]=out.length;push(`4 0 obj\n<< /Length ${cs.length} >>\nstream\n`);push(cs);push("\nendstream\nendobj\n");
+  off[4]=out.length; push(`4 0 obj\n<< /Length ${cs.length} >>\nstream\n`); push(cs); push("\nendstream\nendobj\n");
   writeObj(5,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   writeObj(6,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  off[7]=out.length;push(`7 0 obj\n<< /Type /XObject /Subtype /Image /Width 960 /Height 640 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
-  for(let i=0;i<jpeg.length;i++)out.push(jpeg[i]);push("\nendstream\nendobj\n");
-  const xref=out.length;
+  off[7]=out.length;
+  push(`7 0 obj\n<< /Type /XObject /Subtype /Image /Width 1080 /Height 720 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+  for(let i=0;i<jpeg.length;i++) out.push(jpeg[i]);
+  push("\nendstream\nendobj\n");
+  const xref = out.length;
   push("xref\n0 8\n0000000000 65535 f \n");
-  for(let n=1;n<=7;n++)push(String(off[n]).padStart(10,"0")+" 00000 n \n");
+  for(let n=1;n<=7;n++) push(String(off[n]).padStart(10,"0")+" 00000 n \n");
   push(`trailer\n<< /Size 8 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
-  const blob=new Blob([new Uint8Array(out)],{type:"application/pdf"});
-  const a=document.createElement("a");a.download=fileBase()+".pdf";a.href=URL.createObjectURL(blob);a.click();
+
+  const blob = new Blob([new Uint8Array(out)],{type:"application/pdf"});
+  const a = document.createElement("a");
+  a.download = fileBase()+".pdf";
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  toast("PDF exported");
 };
-function dataURLtoBytes(durl){const b=atob(durl.split(",")[1]);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
-
-function updateTotal(){
-  const t=slots.reduce((a,s)=>a+s.pct,0);
-  $("#totalVal").textContent=t;
-  const tag=$("#totalTag");
-  if(t===100){tag.className="tag ok";tag.textContent="balanced";}
-  else{tag.className="tag no";tag.textContent=(t>100?"+":"")+(t-100)+"% off";}
+function dataURLtoBytes(durl){
+  const b = atob(durl.split(",")[1]);
+  const u = new Uint8Array(b.length);
+  for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
+  return u;
+}
+function fileBase(){
+  const n = ($("#mixName").value||"softfall-mix").trim();
+  return n.replace(/[^\w\- ]+/g,"").replace(/\s+/g,"-").toLowerCase() || "softfall-mix";
 }
 
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-
-function activeColours(){
-  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
-  return slots.filter(s=>s.pct>0).map(s=>({c:ALL[s.name],w:s.pct/t}));
-}
-
-function draw(){
-  updateTotal();
-  const cv=$("#swatch"),ctx=cv.getContext("2d");
-  const W=cv.width,H=cv.height;
-  const cols=activeColours();
-  if(!cols.length){ctx.fillStyle="#e9e9ea";ctx.fillRect(0,0,W,H);drawAvg([233,233,234]);return;}
-  let cum=[],a=0;cols.forEach(o=>{a+=o.w;cum.push(a);});
-  // optical average — used as substrate so any micro-gap reads true, never black
-  let R=0,G=0,B=0;cols.forEach(o=>{const c=hexToRgb(o.c[1]);R+=c[0]*o.w;G+=c[1]*o.w;B+=c[2]*o.w;});
-  ctx.fillStyle=`rgb(${R|0},${G|0},${B|0})`;ctx.fillRect(0,0,W,H);
-  const rnd=mulberry(seed);
-  const grain=+$("#grain").value;
-  // jittered grid: every cell gets a crumb sized to overlap its neighbours -> full coverage, no gaps
-  const cell=grain*1.15;
-  const ncx=Math.ceil(W/cell)+1, ncy=Math.ceil(H/cell)+1;
-  for(let gy=0;gy<ncy;gy++){
-    for(let gx=0;gx<ncx;gx++){
-      const x=gx*cell+(rnd()-0.5)*cell*0.9;
-      const y=gy*cell+(rnd()-0.5)*cell*0.9;
-      const r=cell*(0.80+rnd()*0.5);
-      const p=rnd();let ci=0;while(ci<cum.length-1&&p>cum[ci])ci++;
-      const base=hexToRgb(cols[ci].c[1]);
-      const j=(rnd()-0.5)*20;
-      const col=base.map(v=>Math.max(0,Math.min(255,v+j)));
-      drawCrumb(ctx,x,y,r,col,rnd);
-    }
-  }
-  drawAvg([R,G,B]);
-  renderRecipe();
-}
-
-function drawCrumb(ctx,x,y,r,col,rnd){
-  const n=5+Math.floor(rnd()*3);
-  const rot=rnd()*Math.PI*2;
-  ctx.beginPath();
-  for(let i=0;i<n;i++){
-    const ang=rot+i/n*Math.PI*2;
-    const rr=r*(0.65+rnd()*0.55);
-    const px=x+Math.cos(ang)*rr,py=y+Math.sin(ang)*rr;
-    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
-  }
-  ctx.closePath();
-  ctx.fillStyle=`rgb(${col[0]|0},${col[1]|0},${col[2]|0})`;
-  ctx.fill();
-  if(rnd()>0.8){
-    ctx.beginPath();
-    ctx.arc(x-r*0.2,y-r*0.2,r*0.16,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.05)";ctx.fill();
-  }
-}
-
-function drawAvg(rgb){
-  const hex=rgbToHex(rgb[0],rgb[1],rgb[2]);
-  $("#avgSw").style.background=hex;
-  $("#avgHex").textContent=hex;
-}
-
-function renderRecipe(){
-  const t=slots.reduce((a,s)=>a+s.pct,0)||1;
-  let rows="";
-  slots.forEach(s=>{const c=ALL[s.name];const pc=Math.round(s.pct/t*100);
-    rows+=`<tr><td><span class="sw" style="background:${c[1]}"></span>${c[0]}</td><td>${pc}%</td><td>${c[2]}</td><td>${c[3]}</td></tr>`;});
-  $("#recipe").innerHTML=`<b>Batch recipe</b> (proportion by weight)
-    <table><tr><td><b>Colour</b></td><td><b>%</b></td><td><b>MELOS</b></td><td><b>RAL</b></td></tr>${rows}</table>`;
-}
-
+/* ---- go ---- */
+indexSupplier();
+loadHash();
+renderSupplier();
 renderSlots();
 </script>
 </body>

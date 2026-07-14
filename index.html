@@ -141,6 +141,7 @@
   table.data caption{caption-side:top;text-align:left;font-weight:650;font-size:13px;padding:0 0 6px}
   table.data th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
     color:var(--ink3);padding:8px 10px;border-bottom:1px solid var(--line);background:var(--sunk);font-weight:700}
+  table.data th.num{text-align:right}
   table.data td{padding:8px 10px;border-bottom:1px solid var(--line2)}
   table.data tr:last-child td{border-bottom:none}
   table.data td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
@@ -185,7 +186,6 @@
     <label class="tiny" for="supplier" style="margin-top:12px">Supplier / colour range</label>
     <select id="supplier"></select>
     <div class="codes" id="supplierNote" style="margin-top:6px"></div>
-    <div class="heat" id="supplierWarn" style="margin-top:8px;display:none"></div>
 
     <div class="secthead">Mix recipe</div>
     <div id="slots"></div>
@@ -209,7 +209,7 @@
     </select>
     <div class="note" style="margin-top:12px;font-size:11.5px">
       Zoom out to see the mix the way a parent sees it from the path. Zoom in to see the way a
-      child sees it from the ground. The colour changes between the two — that is the whole point.
+      child sees it from the ground.
     </div>
 
   </div>
@@ -253,12 +253,6 @@
     <table class="data" id="recipeTbl">
       <caption>Batch recipe — proportion by weight of granule</caption>
     </table>
-
-    <div class="note">
-      <b>Colour is not a safety control.</b> Critical fall height is set by the depth and composition of the
-      base layer and confirmed by HIC testing to AS/NZS 4422 — not by the colour of the wear course.
-      Screen colours are approximations. Sign off against a physical supplier sample, viewed outdoors, before pouring.
-    </div>
 
   </div>
 </div>
@@ -356,7 +350,6 @@ const SUPPLIERS = {
     label: "Gezolan EPDM (Australian Surfacing Supplies)",
     note: "EPDM granule · Gezolan range · dist. Australian Surfacing Supplies",
     codeLabel: "Gezolan",
-    warning: "Aromatic binder causes a temporary yellow colour shift, strongest on light and bright colours, lasting roughly 2–5 months. Specify a UV-stable aliphatic binder (extra cost) where colour accuracy matters.",
     groups: {
       "EPDM Range": [
         ["White","#D9C9BB","060","RAL 9010"],
@@ -480,7 +473,7 @@ function mixData(){
     name:($("#mixName").value||"Untitled mix").trim(),
     date:new Date().toLocaleDateString("en-AU",{year:"numeric",month:"short",day:"numeric"}),
     grain:GRAIN_LABEL,
-    supplier:SUP().label, codeLabel:SUP().codeLabel, warning:SUP().warning||""
+    supplier:SUP().label, codeLabel:SUP().codeLabel
   };
 }
 
@@ -643,7 +636,7 @@ function paintReadout(d){
 function renderTables(d){
   $("#recipeTbl").innerHTML = `
     <caption>Batch recipe — proportion by weight of granule</caption>
-    <thead><tr><th>Colour</th><th style="text-align:right">Share</th><th>${d.codeLabel} code</th><th>RAL</th></tr></thead>
+    <thead><tr><th>Colour</th><th class="num">Share</th><th class="num">${d.codeLabel} code</th><th class="num">RAL</th></tr></thead>
     <tbody>${d.rows.map(r=>`
       <tr>
         <td><span class="sw" style="background:${r.hex}"></span>${r.name}</td>
@@ -661,9 +654,6 @@ function renderSupplier(){
     .map(([k,v])=>`<option value="${k}" ${k===supplierKey?"selected":""}>${v.label}</option>`).join("");
   sel.disabled = Object.keys(SUPPLIERS).length < 2;
   $("#supplierNote").textContent = SUP().note;
-  const w = $("#supplierWarn");
-  if(SUP().warning){ w.style.display="block"; w.textContent = SUP().warning; }
-  else { w.style.display="none"; }
 }
 $("#supplier").onchange = e=>{
   const next = e.target.value;
@@ -737,8 +727,7 @@ function loadHash(){
 const DISCLAIMER =
   "Rubber crumb does not blend like paint. Each granule keeps its own colour, so the surface always reads " +
   "as speckle; the optical blend is only what the eye averages from a distance. Colour references are " +
-  "indicative - equivalent products accepted. Confirm against a physical sample before pouring. Colour does " +
-  "not determine critical fall height.";
+  "indicative - equivalent products accepted. Confirm against a physical sample before pouring.";
 
 /* ---- PNG spec card ---- */
 $("#pngBtn").onclick = ()=>{
@@ -747,7 +736,7 @@ $("#pngBtn").onclick = ()=>{
   const imgH = Math.round((W-80)*720/1080);
   const n = Math.max(1, d.rows.length);
   const tblH = 56 + n*rowH;                       // title + head + rule + rows
-  const H = 92 + imgH + 40 + 70 + tblH + 40 + 110;
+  const H = 92 + imgH + 40 + 70 + tblH + 40 + 72;
 
   const cv = document.createElement("canvas");
   cv.width = W*s; cv.height = H*s;
@@ -777,8 +766,7 @@ $("#pngBtn").onclick = ()=>{
   y += 40;
 
   x.fillStyle="#5a6472"; x.font="400 11.5px -apple-system,Segoe UI,Arial";
-  const note = d.warning ? DISCLAIMER + "  SUPPLIER NOTE: " + d.warning : DISCLAIMER;
-  wrapText(x, note, 40, y, W-80, 16);
+  wrapText(x, DISCLAIMER, 40, y, W-80, 16);
 
   const a=document.createElement("a");
   a.download = fileBase()+".png";
@@ -866,8 +854,7 @@ $("#pdfBtn").onclick = ()=>{
   y-=14;
 
   const wrap = (s,n)=>{const w=s.split(" ");const out=[];let l="";w.forEach(x=>{if((l+x).length>n){out.push(l);l=x+" ";}else l+=x+" ";});out.push(l);return out;};
-  const note = d.warning ? DISCLAIMER + "  SUPPLIER NOTE: " + d.warning : DISCLAIMER;
-  wrap(note,100).forEach(L=>{txt(40,y,8.5,"F1",.35,.39,.45,L.trim()); y-=11;});
+  wrap(DISCLAIMER,100).forEach(L=>{txt(40,y,8.5,"F1",.35,.39,.45,L.trim()); y-=11;});
 
   /* --- assemble --- */
   const out=[]; const push = s=>{for(let i=0;i<s.length;i++) out.push(s.charCodeAt(i)&0xff);};

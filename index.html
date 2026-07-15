@@ -377,6 +377,36 @@ const SUPPLIERS = {
         ["Dark Grey","#251D21","045","RAL 7011"]
       ]
     }
+  }  ,
+  "PRIMOFLEX": {
+    label: "Primoflex EPDM (Industrial Organics)",
+    note: "EPDM granule · Primoflex range · Industrial Organics · no RAL reference",
+    codeLabel: "Primoflex",
+    groups: {
+      "EPDM Range": [
+        ["Brick Red","#AD4F3A","ST101",""],
+        ["Rosy Red","#D3474F","SP119",""],
+        ["Burnt Orange","#EA6832","BC106",""],
+        ["Amber Yellow","#C69131","ST108",""],
+        ["Bright Yellow","#F5E118","BC107",""],
+        ["Light Brown","#CFA176","ST110",""],
+        ["Penny Brown","#99664E","ST109",""],
+        ["Primrose Light","#E9C279","BC113",""],
+        ["White","#F1EEDD","BC116",""],
+        ["Army Green","#6E6C57","ST117",""],
+        ["Leafy Green","#6E8866","BC102",""],
+        ["Bright Green","#88A053","BC103",""],
+        ["Navy Blue","#5477B5","BC118",""],
+        ["Island Blue","#5791CA","BC104",""],
+        ["Apple Green","#80C564","BC103J",""],
+        ["Sky Blue","#73B7E3","BC105",""],
+        ["Tiffany Blue","#9DC9CA","BC121",""],
+        ["Royal Purple","#816EA0","SP115",""],
+        ["Baby Pink","#E598C0","SP114",""],
+        ["Ash Grey","#62635E","ST111",""],
+        ["Light Grey","#BBBCAE","ST112",""]
+      ]
+    }
   }
 };
 
@@ -520,7 +550,7 @@ function renderSlots(){
         <input type="number" min="0" max="100" value="${s.pct}" data-i="${i}" class="cnum" aria-label="${c[0]} percentage value">
         <span class="unit">%</span>
       </div>
-      <div class="codes">${SUP().codeLabel} ${c[2]} &middot; ${c[3]}</div>`;
+      <div class="codes">${SUP().codeLabel} ${c[2]}${c[3]?" &middot; "+c[3]:""}</div>`;
     slotsEl.appendChild(div);
   });
   $("#addBtn").disabled = slots.length >= MAX_SLOTS;
@@ -642,7 +672,7 @@ function renderTables(d){
         <td><span class="sw" style="background:${r.hex}"></span>${r.name}</td>
         <td class="num">${r.pct}%</td>
         <td class="num">${r.code}</td>
-        <td class="num">${r.ral}</td>
+        <td class="num">${r.ral||"—"}</td>
       </tr>`).join("") || `<tr><td colspan="4" style="color:var(--ink3)">Set a percentage above zero to build a mix.</td></tr>`}
     </tbody>
     <tfoot><tr><td>Total</td><td class="num">${d.rows.reduce((a,r)=>a+r.pct,0)}%</td><td colspan="2"></td></tr></tfoot>`;
@@ -761,7 +791,7 @@ $("#pngBtn").onclick = ()=>{
 
   y = table(x, y, W, rowH, "Batch recipe — proportion by weight",
     ["Colour","%",d.codeLabel,"RAL"], [70,340,430,560],
-    d.rows.map(r=>[r.name, r.pct+"%", r.code, r.ral]), d.rows.map(r=>r.hex));
+    d.rows.map(r=>[r.name, r.pct+"%", r.code, r.ral||"—"]), d.rows.map(r=>r.hex));
 
   y += 40;
 
@@ -848,7 +878,7 @@ $("#pdfBtn").onclick = ()=>{
     txt(cx[0],y,11,"F1",.09,.10,.12,r.name);
     txt(cx[1],y,11,"F1",.09,.10,.12,r.pct+"%");
     txt(cx[2],y,11,"F1",.09,.10,.12,r.code);
-    txt(cx[3],y,11,"F1",.09,.10,.12,r.ral);
+    txt(cx[3],y,11,"F1",.09,.10,.12,r.ral||"-");
     y-=20;
   });
   y-=14;
